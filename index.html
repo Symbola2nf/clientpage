@@ -196,7 +196,7 @@
             <div>
                 <label for="free_airline" class="label">شركة الطيران للرحلة المجانية <span class="text-red-500">*</span></label>
                 <select id="free_airline" name="free_airline" class="input-field" required>
-                    <!-- سيتم تعبئة الخيارات بواسطة جافاسكريبت -->
+                    <!-- Options will be populated by JavaScript -->
                 </select>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -219,13 +219,8 @@
                     <input type="date" id="free_passportExpiry" name="free_passportExpiry" class="input-field" required>
                 </div>
             </div>
-            <div>
-                <label for="free_passportPicture" class="label">صورة الجواز <span class="text-red-500">*</span></label>
-                <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
-                <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
-                    <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
-                </button>
-                <div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
+            <div id="free-passport-upload-container">
+                <!-- This will be populated by JavaScript -->
             </div>
         </form>
     </div>
@@ -464,9 +459,55 @@
         const originalPrice = parseFloat(data.price) || 0;
         priceContainer.innerHTML = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
         
+        // Handle Free Ticket Offer
         freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
         if (data.is_free) {
             populateAirlineSelect();
+            const prefilledFreeTicket = data.prefilled_free_ticket_data || {};
+            const freeForm = document.getElementById('free-ticket-form');
+            
+            const fieldsToPrefill = {
+                'free_departure_from': prefilledFreeTicket.departure_from,
+                'free_arrival_to': prefilledFreeTicket.arrival_to,
+                'free_airline': prefilledFreeTicket.airline,
+                'free_firstName': prefilledFreeTicket.firstName,
+                'free_lastName': prefilledFreeTicket.lastName,
+                'free_passportNumber': prefilledFreeTicket.passportNumber,
+                'free_passportExpiry': prefilledFreeTicket.passportExpiry
+            };
+
+            for (const [id, value] of Object.entries(fieldsToPrefill)) {
+                const input = freeForm.querySelector(`#${id}`);
+                if (input) {
+                    if (value) {
+                        input.value = value;
+                        input.disabled = true;
+                    } else {
+                        input.disabled = false;
+                    }
+                }
+            }
+
+            const passportContainer = document.getElementById('free-passport-upload-container');
+            if (prefilledFreeTicket.passport_picture_provided) {
+                passportContainer.innerHTML = `
+                    <div>
+                        <label class="label">صورة الجواز</label>
+                        <button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled>
+                            <i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة
+                        </button>
+                    </div>`;
+            } else {
+                passportContainer.innerHTML = `
+                    <div>
+                        <label for="free_passportPicture" class="label">صورة الجواز <span class="text-red-500">*</span></label>
+                        <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
+                        <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
+                            <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
+                        </button>
+                        <div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
+                    </div>`;
+            }
         }
 
         // Handle multiple passengers
@@ -475,6 +516,29 @@
             data.passengers.forEach((passenger, index) => {
                 const passengerNum = index + 1;
                 const prefilled = passenger || {};
+                
+                let passportHtml;
+                if (prefilled.passport_picture_provided) {
+                    passportHtml = `
+                        <div>
+                            <label class="label">صورة الجواز</label>
+                            <button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled>
+                                <i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة
+                            </button>
+                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
+                        </div>`;
+                } else {
+                    passportHtml = `
+                        <div>
+                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="text-red-500">*</span></label>
+                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*" required>
+                            <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()">
+                                <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
+                            </button>
+                            <div id="main_passport_file_name_${index}" class="file-name">لم يتم اختيار ملف</div>
+                        </div>`;
+                }
+
                 formHtml += `
                     <div class="p-4 border rounded-lg bg-gray-50 space-y-4">
                         <h2 class="text-xl font-bold border-b pb-2">معلومات المسافر ${passengerNum}</h2>
@@ -502,14 +566,7 @@
                                 <input type="date" id="passportExpiry_${index}" name="passportExpiry_${index}" class="input-field" value="${prefilled.passportExpiry || ''}" ${prefilled.passportExpiry ? 'disabled' : ''} required>
                             </div>
                         </div>
-                        <div>
-                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="text-red-500">*</span></label>
-                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*" required>
-                            <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()">
-                                <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
-                            </button>
-                            <div id="main_passport_file_name_${index}" class="file-name">لم يتم اختيار ملف</div>
-                        </div>
+                        ${passportHtml}
                     </div>`;
             });
         }
