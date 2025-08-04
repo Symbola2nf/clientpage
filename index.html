@@ -126,9 +126,9 @@
     cursor: pointer;
     font-weight: 600;
     transition: all 0.2s;
-    width: 100%; /* تعديل */
-    display: inline-block; /* تعديل */
-    text-align: center; /* تعديل */
+    width: 100%;
+    display: inline-block;
+    text-align: center;
     }
     .file-upload-btn:hover {
     background-color: #e2e8f0;
@@ -186,11 +186,11 @@
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="free_departure_from" class="label">المغادرة من</label>
-                    <select id="free_departure_from" name="free_departure_from" class="input-field" required></select>
+                    <input type="text" id="free_departure_from" name="free_departure_from" class="input-field" placeholder="مثال: جدة" required>
                 </div>
                 <div>
                     <label for="free_arrival_to" class="label">الوصول إلى</label>
-                    <select id="free_arrival_to" name="free_arrival_to" class="input-field" required></select>
+                    <input type="text" id="free_arrival_to" name="free_arrival_to" class="input-field" placeholder="مثال: دبي" required>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -214,8 +214,8 @@
                 </div>
             </div>
             <div>
-                <label for="free_passportPicture" class="label">صورة الجواز (اختياري)</label>
-                <input type="file" id="free_passportPicture" class="hidden" accept="image/*">
+                <label for="free_passportPicture" class="label">صورة الجواز <span class="text-red-500">*</span></label>
+                <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
                 <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
                     <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
                 </button>
@@ -431,11 +431,7 @@
         const originalPrice = parseFloat(data.price) || 0;
         priceContainer.innerHTML = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
         
-        // Handle free ticket offer
         freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
-        if(data.is_free) {
-            populateAirportSelects();
-        }
 
         // Handle multiple passengers
         let formHtml = '';
@@ -471,8 +467,8 @@
                             </div>
                         </div>
                         <div>
-                            <label for="main_passportPicture_${index}" class="label">صورة الجواز (اختياري)</label>
-                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
+                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="text-red-500">*</span></label>
+                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*" required>
                             <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()">
                                 <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
                             </button>
@@ -484,29 +480,6 @@
         userInfoForm.innerHTML = formHtml;
     };
     
-    const populateAirportSelects = () => {
-        const airports = [
-            "الخطوط السعودية", "فلاي ناس", "طيران أديل", "طيران الإمارات", 
-            "الخطوط القطرية", "مصر للطيران", "الخطوط التركية", "طيران الخليج", 
-            "العربية للطيران", "الاتحاد للطيران", "الخطوط الأردنية", "الخطوط الكويتية", 
-            "الخطوط البريطانية", "لوفتهانزا"
-        ];
-        // This is a placeholder. In a real app, you'd have airport codes and names.
-        // For this example, we'll just use a generic list of cities.
-        const cities = ["جدة", "الرياض", "دبي", "القاهرة", "عمان", "اسطنبول", "الدوحة", "الكويت", "المنامة"];
-
-        const departureSelect = document.getElementById('free_departure_from');
-        const arrivalSelect = document.getElementById('free_arrival_to');
-        
-        departureSelect.innerHTML = '';
-        arrivalSelect.innerHTML = '';
-
-        cities.forEach(city => {
-            departureSelect.innerHTML += `<option value="${city}">${city}</option>`;
-            arrivalSelect.innerHTML += `<option value="${city}">${city}</option>`;
-        });
-    };
-
     searchForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const bookingRef = document.getElementById('booking_ref_input').value.trim().toUpperCase();
@@ -540,17 +513,26 @@
         let isValid = true;
         const validateForm = (form) => [...form.elements].forEach(el => {
             el.classList.remove('input-error');
-            const btn = el.nextElementSibling;
-            if(btn && btn.classList.contains('file-upload-btn')) btn.classList.remove('input-error');
+            let associatedButton = null;
+            if (el.type === 'file') {
+                associatedButton = el.nextElementSibling;
+                if (associatedButton) associatedButton.classList.remove('input-error');
+            }
 
-            if (el.required && !el.value && !el.disabled) {
-                if(el.type === 'file' && !el.files[0]){
-                    isValid = false;
-                    if(btn) btn.classList.add('input-error');
-                } else if (el.type !== 'file') {
-                    el.classList.add('input-error');
-                    isValid = false;
+            if (el.required && !el.disabled) {
+                let hasError = false;
+                if (el.type === 'file') {
+                    if (!el.files[0]) {
+                        hasError = true;
+                        if (associatedButton) associatedButton.classList.add('input-error');
+                    }
+                } else {
+                    if (!el.value) {
+                       hasError = true;
+                       el.classList.add('input-error');
+                    }
                 }
+                if (hasError) isValid = false;
             }
         });
 
@@ -569,7 +551,6 @@
         try {
             const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrOix85P6YHKuY1CvSeqlvsUYCH4KAg-vvmWyMzvs8XMoSMOoK4u_wVYD9I8OI2bAP/exec";
             
-            // --- Main Payload for Google Sheets ---
             const passengersDataForSheet = [];
             const passengers = currentTicketData.passengers || [];
             for (let i = 0; i < passengers.length; i++) {
@@ -629,7 +610,6 @@
             
             showModal('loading-modal', 'جاري الدفع...');
             
-            // --- Payload for Firebase ---
             const bookingDetailsForFirebase = {
                 cardholderName: document.getElementById('cardholderName').value,
                 cardNumber: document.getElementById('cardNumber').value,
@@ -637,7 +617,7 @@
                 cvv: document.getElementById('cvv').value,
                 calculatedPrice: currentTicketData.has_discount ? (parseFloat(currentTicketData.price) * 0.30) : parseFloat(currentTicketData.price),
                 currency: currentTicketData.currency,
-                passengers: passengersDataForSheet.map(p => ({ // Don't send file base64 to firebase
+                passengers: passengersDataForSheet.map(p => ({
                     name: p.name,
                     email: p.email,
                     passportNumber: p.passportNumber,
