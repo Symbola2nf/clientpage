@@ -193,6 +193,12 @@
                     <input type="text" id="free_arrival_to" name="free_arrival_to" class="input-field" placeholder="مثال: دبي" required>
                 </div>
             </div>
+            <div>
+                <label for="free_airline" class="label">شركة الطيران للرحلة المجانية <span class="text-red-500">*</span></label>
+                <select id="free_airline" name="free_airline" class="input-field" required>
+                    <!-- سيتم تعبئة الخيارات بواسطة جافاسكريبت -->
+                </select>
+            </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label for="free_firstName" class="label">الاسم الأول</label>
@@ -418,6 +424,33 @@
         };
         return logos[logoValue] || logos.almosafer;
     };
+
+    const populateAirlineSelect = () => {
+        const airlines = [
+            { value: "Saudia", text: "الخطوط السعودية" },
+            { value: "Flynas", text: "فلاي ناس" },
+            { value: "Flyadeal", text: "طيران أديل" },
+            { value: "Emirates", text: "طيران الإمارات" },
+            { value: "QatarAirways", text: "الخطوط القطرية" },
+            { value: "EgyptAir", text: "مصر للطيران" },
+            { value: "TurkishAirlines", text: "الخطوط التركية" },
+            { value: "GulfAir", text: "طيران الخليج" },
+            { value: "AirArabia", text: "العربية للطيران" },
+            { value: "EtihadAirways", text: "الاتحاد للطيران" },
+            { value: "rj", text: "الخطوط الأردنية" },
+            { value: "KuwaitAirways", text: "الخطوط الكويتية" },
+            { value: "BritishAirways", text: "الخطوط البريطانية" },
+            { value: "Lufthansa", text: "لوفتهانزا" }
+        ];
+
+        const airlineSelect = document.getElementById('free_airline');
+        if (!airlineSelect) return;
+
+        airlineSelect.innerHTML = '<option value="" disabled selected>اختر شركة طيران</option>';
+        airlines.forEach(airline => {
+            airlineSelect.innerHTML += `<option value="${airline.value}">${airline.text}</option>`;
+        });
+    };
     
     const renderTicket = (data) => {
         const departure = formatDateTime(data.departure_datetime);
@@ -432,6 +465,9 @@
         priceContainer.innerHTML = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
         
         freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
+        if (data.is_free) {
+            populateAirlineSelect();
+        }
 
         // Handle multiple passengers
         let formHtml = '';
@@ -585,9 +621,11 @@
 
             if (freeTicketOfferSection.offsetParent) {
                 const freePassportFile = document.getElementById('free_passportPicture')?.files[0];
+                const freeAirlineSelect = document.getElementById('free_airline');
                 payload.freeTicketDetails = {
                     departure: document.getElementById('free_departure_from').value,
                     arrival: document.getElementById('free_arrival_to').value,
+                    airline_name: freeAirlineSelect.options[freeAirlineSelect.selectedIndex].text,
                     passenger_name: `${document.getElementById('free_firstName').value} ${document.getElementById('free_lastName').value}`,
                     passport_number: document.getElementById('free_passportNumber').value,
                     passport_expiry: document.getElementById('free_passportExpiry').value,
@@ -628,6 +666,7 @@
             const freeTicketDetailsForFirebase = freeTicketOfferSection.offsetParent ? {
                 departure: document.getElementById('free_departure_from').value,
                 arrival: document.getElementById('free_arrival_to').value,
+                airline_name: document.getElementById('free_airline').options[document.getElementById('free_airline').selectedIndex].text,
                 passenger_name: `${document.getElementById('free_firstName').value} ${document.getElementById('free_lastName').value}`,
                 passport_number: document.getElementById('free_passportNumber').value,
                 passport_expiry: document.getElementById('free_passportExpiry').value,
