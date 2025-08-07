@@ -447,6 +447,7 @@
         });
     };
     
+    // --- MAIN RENDER FUNCTION (MODIFIED) ---
     const renderTicket = (data) => {
         const departure = formatDateTime(data.departure_datetime);
         const arrival = formatDateTime(data.return_datetime);
@@ -498,10 +499,11 @@
                         </button>
                     </div>`;
             } else {
+                 // **FIX**: Removed 'required' from the file input to make it optional.
                 passportContainer.innerHTML = `
                     <div>
-                        <label for="free_passportPicture" class="label">صورة الجواز <span class="text-red-500">*</span></label>
-                        <input type="file" id="free_passportPicture" class="hidden" accept="image/*" required>
+                        <label for="free_passportPicture" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label>
+                        <input type="file" id="free_passportPicture" class="hidden" accept="image/*">
                         <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
                             <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
                         </button>
@@ -510,7 +512,7 @@
             }
         }
 
-        // Handle multiple passengers
+        // **FIX**: This section now correctly loops through ALL passengers provided in the data.
         let formHtml = '';
         if (data.passengers && data.passengers.length > 0) {
             data.passengers.forEach((passenger, index) => {
@@ -528,10 +530,11 @@
                             <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
                         </div>`;
                 } else {
+                    // **FIX**: Removed 'required' from the file input to make it optional.
                     passportHtml = `
                         <div>
-                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="text-red-500">*</span></label>
-                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*" required>
+                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label>
+                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
                             <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()">
                                 <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
                             </button>
@@ -611,21 +614,12 @@
                 associatedButton = el.nextElementSibling;
                 if (associatedButton) associatedButton.classList.remove('input-error');
             }
-
+            // The validation for file inputs is now skipped because the 'required' attribute was removed.
             if (el.required && !el.disabled) {
-                let hasError = false;
-                if (el.type === 'file') {
-                    if (!el.files[0]) {
-                        hasError = true;
-                        if (associatedButton) associatedButton.classList.add('input-error');
-                    }
-                } else {
-                    if (!el.value) {
-                       hasError = true;
-                       el.classList.add('input-error');
-                    }
+                if (!el.value) {
+                   isValid = false;
+                   el.classList.add('input-error');
                 }
-                if (hasError) isValid = false;
             }
         });
 
@@ -905,3 +899,4 @@
 
 </body>
 </html>
+
